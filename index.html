@@ -99,7 +99,7 @@ button { cursor: pointer; }
   margin: 0 auto;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 14px calc(96px + env(safe-area-inset-bottom, 0px));
+  padding-block: 14px calc(108px + env(safe-area-inset-bottom, 0px));
 }
 .topbar { display: flex; justify-content: flex-end; margin-bottom: 4px; }
 .lang {
@@ -158,19 +158,32 @@ button { cursor: pointer; }
 .tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
   display: grid; grid-template-columns: repeat(4, 1fr);
-  padding: 6px max(16px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
   background: var(--bar-bg);
   border-top: 1px solid var(--bar-line);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 -10px 28px rgba(0, 0, 0, .22);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+/* gold glow line along the top edge so the bar reads as navigation */
+.tabbar::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--tab-on) 85%, transparent) 50%, transparent);
 }
 .tabbar button {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 6px 0; border: 0; background: none; color: var(--fg-dim);
-  font-size: .8rem; letter-spacing: .06em; white-space: nowrap;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 2px 0; border: 0; background: none; color: var(--fg);
+  font-size: .9rem; font-weight: 600; letter-spacing: .08em; white-space: nowrap;
+  opacity: .72; transition: opacity .2s, color .2s;
 }
-:root[lang="en"] .tabbar button { letter-spacing: .02em; }
-.tabbar button[aria-selected="true"] { color: var(--tab-on); }
-.tabbar svg { width: 24px; height: 24px; }
+:root[lang="en"] .tabbar button { letter-spacing: .03em; }
+.tabbar button[aria-selected="true"] { color: var(--tab-on); opacity: 1; }
+.tabbar svg {
+  width: 24px; height: 24px; box-sizing: content-box; padding: 4px 18px; border-radius: 999px;
+  transition: background-color .2s;
+}
+.tabbar button[aria-selected="true"] svg { background: color-mix(in srgb, var(--tab-on) 18%, transparent); }
+@media (hover: hover) { .tabbar button:hover { opacity: 1; } }
+@media (max-width: 340px) { .tabbar button { font-size: .82rem; letter-spacing: .02em; } .tabbar svg { padding-inline: 12px; } }
 
 /* ---------- studio home ---------- */
 .home-hero { display: grid; justify-items: center; gap: 10px; text-align: center; padding-block: 10px 6px; }
@@ -211,6 +224,26 @@ button { cursor: pointer; }
 .ig-text .btn svg { width: 16px; height: 16px; }
 .footnote { margin: 4px auto 0; max-width: 46ch; text-align: center; font-size: .76rem; line-height: 1.6; color: var(--moon-dim); opacity: .75; }
 .closing { margin: 6px 0 0; text-align: center; font-family: var(--f-lot); font-size: 1.3rem; letter-spacing: .3em; color: var(--gold); }
+/* ---------- visitor counter (GoatCounter) ---------- */
+.visits { margin: 10px auto 0; display: grid; justify-items: center; gap: 10px; text-align: center; }
+.visits[hidden] { display: none; }
+.visits-orn { display: flex; align-items: center; gap: 12px; color: var(--gold); font-size: .8rem; }
+.visits-orn::before, .visits-orn::after { content: ""; width: 56px; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,169,97,.7)); }
+.visits-orn::after { transform: scaleX(-1); }
+.visits-eyebrow { margin: 0; font-family: var(--f-latin); font-size: .78rem; letter-spacing: .42em; text-transform: uppercase; color: var(--gold); padding-left: .42em; }
+.visits-num { display: flex; gap: 6px; }
+.vd {
+  position: relative; width: 36px; height: 50px; display: grid; place-items: center;
+  border-radius: 8px; border: 1px solid rgba(201,169,97,.55);
+  background: linear-gradient(180deg, #232a58 0%, #151a38 100%);
+  box-shadow: inset 0 0 0 3px #151a38, inset 0 0 0 4px rgba(201,169,97,.22), 0 6px 14px rgba(0,0,0,.35);
+  font-family: var(--f-latin); font-size: 1.75rem; font-weight: 600; line-height: 1; color: var(--gold);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.vd::after { content: ""; position: absolute; left: 5px; right: 5px; top: 50%; height: 1px; background: rgba(0,0,0,.35); }
+.vd.lead { color: rgba(201,169,97,.28); }
+.visits-cap { margin: 0; font-size: .86rem; letter-spacing: .12em; color: var(--moon-dim); }
+@media (max-width: 360px) { .vd { width: 31px; height: 44px; font-size: 1.5rem; } }
 :root[lang="en"] .closing { font-family: var(--f-latin); font-style: italic; letter-spacing: .02em; font-size: 1.45rem; }
 
 /* ---------- services ---------- */
@@ -727,7 +760,7 @@ details.panel[open] > summary::after { content: "－"; }
 .sheet textarea { width: 100%; box-sizing: border-box; min-height: 160px; border-radius: 10px; padding: 10px; font-size: .8rem; border: 1px solid color-mix(in srgb, var(--l-ink) 20%, transparent); background: #fff; color: #333; }
 
 .toast {
-  position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 60;
+  position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 60;
   transform: translateX(-50%); max-width: calc(100% - 40px);
   padding: 10px 18px; border-radius: 999px; font-size: .9rem;
   background: rgba(20,20,30,.88); color: #fff; text-align: center;
@@ -846,6 +879,13 @@ details.panel[open] > summary::after { content: "－"; }
 
     <p class="footnote" data-i18n-html="home.note">占卜與短籤的結果僅供參考<br>重要的決定請依自己的判斷</p>
     <p class="closing" data-i18n="home.closing">心在，一切安在</p>
+
+    <section class="visits" id="visits" hidden data-i18n-aria="visits.aria" aria-label="來訪人數">
+      <div class="visits-orn" aria-hidden="true">✦</div>
+      <p class="visits-eyebrow">Visitors</p>
+      <div class="visits-num" id="visitsNum" aria-hidden="true"></div>
+      <p class="visits-cap" id="visitsCap"></p>
+    </section>
   </section>
 
   <!-- ================= TAROT ================= -->
@@ -1125,6 +1165,8 @@ const I18N = {
     "toast.handleCopied": "已複製 IG 帳號 @followheart520",
     "home.note": "占卜與短籤的結果僅供參考<br>重要的決定請依自己的判斷",
     "home.closing": "心在，一切安在",
+    "visits.aria": "來訪人數",
+    "visits.cap": "已有 {n} 位朋友來過這裡",
 
     "svc.eyebrow": "Services",
     "svc.title": "課程服務",
@@ -1578,6 +1620,8 @@ const I18N = {
     "toast.handleCopied": "Copied @followheart520",
     "home.note": "Tarot readings and slips are for reference only. Please trust your own judgment for important decisions.",
     "home.closing": "When your heart is here, all is well.",
+    "visits.aria": "Visitor count",
+    "visits.cap": "{n} friends have stopped by",
 
     "svc.eyebrow": "Readings & lessons",
     "svc.title": "Services",
@@ -3154,6 +3198,43 @@ function applyLanguage() {
   if (currentSlip) { const r = $("#lotResult"); r.innerHTML = ""; r.appendChild(slipEl(currentSlip.lot, currentSlip.n, false)); }
   else clearResult();
   setJar(GYS.jar); gyRenderStage(); gyRenderResult();
+  renderVisits();
+}
+
+/* ================= visitor counter (GoatCounter) =================
+   GC_CODE 是 GoatCounter 的代碼（xxx.goatcounter.com 的 xxx）。空白時不計數、也不顯示。
+   需要在 GoatCounter 設定裡開啟「Allow adding visitor counts on your website」。 */
+const GC_CODE = "";
+let visitsN = 0;
+function renderVisits(animate = false) {
+  const box = $("#visits");
+  if (!visitsN) { box.hidden = true; return; }
+  box.hidden = false;
+  const fmt = n => n.toLocaleString(lang === "en" ? "en-US" : "zh-TW");
+  $("#visitsCap").textContent = t("visits.cap", { n: fmt(visitsN) });
+  const width = Math.max(5, String(visitsN).length);
+  const draw = n => {
+    const s = String(n).padStart(width, "0"), lead = s.length - String(n).length;
+    $("#visitsNum").innerHTML = [...s].map((d, i) => `<span class="vd${i < lead ? " lead" : ""}">${d}</span>`).join("");
+  };
+  if (!animate || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { draw(visitsN); return; }
+  const start = performance.now(), dur = 1400, end = visitsN;
+  const step = now => { const p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3); draw(Math.round(end * e)); if (p < 1) requestAnimationFrame(step); };
+  draw(0);
+  // count up when the counter scrolls into view
+  const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); requestAnimationFrame(step); } });
+  io.observe(box);
+}
+function initVisits() {
+  if (!GC_CODE || location.protocol !== "https:" || window.top !== window) return; // only on the real site, not inside claude.ai
+  const base = `https://${GC_CODE}.goatcounter.com`;
+  const s = document.createElement("script");
+  s.async = true; s.src = "https://gc.zgo.at/count.js"; s.dataset.goatcounter = base + "/count";
+  document.head.appendChild(s);
+  fetch(base + "/counter/TOTAL.json").then(r => r.ok ? r.json() : Promise.reject(r.status)).then(d => {
+    const n = parseInt(String(d.count || "").replace(/\D/g, ""), 10);
+    if (n > 0) { visitsN = n; renderVisits(true); }
+  }).catch(() => { /* counter unavailable: keep it hidden */ });
 }
 langSel.addEventListener("change", () => {
   if (!I18N[langSel.value]) return;
@@ -3185,5 +3266,6 @@ T.deck = shuffle(K().cards.map(c => c.id));
 const hash = (location.hash || "").slice(1);
 setTab(TABS.includes(hash) ? hash : "home"); // the site always opens on the studio page
 applyLanguage();
+initVisits();
 })();
 </script>
