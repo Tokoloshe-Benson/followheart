@@ -2380,7 +2380,7 @@ async function openShot(make = makeReadingImage, qSel = "#tq", kind = "t", fileN
     const file = new File([blob], shotName(), { type: "image/png" });
     // inside claude.ai the page runs in a frame without web-share permission, so only offer Share where it is allowed
     const fp = document.featurePolicy;
-    let canShare = false; try { canShare = !!((!fp || fp.allowsFeature("web-share")) && navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) {}
+    let canShare = false; try { canShare = !!((fp ? fp.allowsFeature("web-share") : window.top === window) &&navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) {}
     const canCopy = !!(navigator.clipboard && navigator.clipboard.write && window.ClipboardItem);
     btns.innerHTML = (canShare ? `<button type="button" class="btn ${bc} solid" data-act="share">${esc(t("shot.share"))}</button>` : "")
       + (canCopy ? `<button type="button" class="btn ${bc} ${canShare ? "" : "solid"}" data-act="copy">${esc(t("shot.copy"))}</button>` : "")
