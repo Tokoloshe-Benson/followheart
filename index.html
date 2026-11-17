@@ -3205,10 +3205,10 @@ function applyLanguage() {
    GC_CODE 是 GoatCounter 的代碼（xxx.goatcounter.com 的 xxx）。空白時不計數、也不顯示。
    需要在 GoatCounter 設定裡開啟「Allow adding visitor counts on your website」。 */
 const GC_CODE = "tokoloshe";
-let visitsN = 0;
+let visitsN = 0, visitsReady = false;
 function renderVisits(animate = false) {
   const box = $("#visits");
-  if (!visitsN) { box.hidden = true; return; }
+  if (!visitsReady) { box.hidden = true; return; }
   box.hidden = false;
   const fmt = n => n.toLocaleString(lang === "en" ? "en-US" : "zh-TW");
   $("#visitsCap").textContent = t("visits.cap", { n: fmt(visitsN) });
@@ -3233,8 +3233,13 @@ function initVisits() {
   document.head.appendChild(s);
   fetch(base + "/counter/TOTAL.json").then(r => r.ok ? r.json() : Promise.reject(r.status)).then(d => {
     const num = v => parseInt(String(v || "").replace(/\D/g, ""), 10) || 0;
-    const n = num(d.count_unique) || num(d.count); // unique visitors; fall back to page views
-    if (n > 0) { visitsN = n; renderVisits(true); }
+    let n = num(d.count_unique) || num(d.count); // unique visitors; fall back to page views
+    // GoatCounter's public number lags a few minutes: count a first-time visitor right away,
+    // and never show less than this browser saw last time
+    if (!store.get("visits.seen", false)) { n += 1; store.set("visits.seen", true); }
+    n = Math.max(n, store.get("visits.last", 0));
+    store.set("visits.last", n);
+    visitsN = n; visitsReady = true; renderVisits(n > 0);
   }).catch(() => { /* counter unavailable: keep it hidden */ });
 }
 langSel.addEventListener("change", () => {
