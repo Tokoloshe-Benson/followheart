@@ -3204,7 +3204,7 @@ function applyLanguage() {
 /* ================= visitor counter (GoatCounter) =================
    GC_CODE 是 GoatCounter 的代碼（xxx.goatcounter.com 的 xxx）。空白時不計數、也不顯示。
    需要在 GoatCounter 設定裡開啟「Allow adding visitor counts on your website」。 */
-const GC_CODE = "";
+const GC_CODE = "tokoloshe";
 let visitsN = 0;
 function renderVisits(animate = false) {
   const box = $("#visits");
@@ -3232,7 +3232,8 @@ function initVisits() {
   s.async = true; s.src = "https://gc.zgo.at/count.js"; s.dataset.goatcounter = base + "/count";
   document.head.appendChild(s);
   fetch(base + "/counter/TOTAL.json").then(r => r.ok ? r.json() : Promise.reject(r.status)).then(d => {
-    const n = parseInt(String(d.count || "").replace(/\D/g, ""), 10);
+    const num = v => parseInt(String(v || "").replace(/\D/g, ""), 10) || 0;
+    const n = num(d.count_unique) || num(d.count); // unique visitors; fall back to page views
     if (n > 0) { visitsN = n; renderVisits(true); }
   }).catch(() => { /* counter unavailable: keep it hidden */ });
 }
