@@ -3038,10 +3038,11 @@ const PUB_THEMES = {
     cell: "#FFFEF8", frame: "#7A9A5E", inner: ["#E6EED3", "#D2E1B5"], banner: "#FFFEF8", line: "#7A9A5E", title: "#4E6B37", sub: "#7D8F6A",
     eyebrow: "#C9813E", head: "#3F5A2C", bar: "#FFFEF8", ink: "#3B4630", foot: "#3F5A2C", footDim: "#8A9A78",
     badges: ["#E2725B", "#3E93B8", "#E0A021", "#8C6BC4"], tape: ["rgba(242,177,52,.7)", "rgba(232,149,122,.7)"], shadow: "rgba(60,80,30,.28)" },
-  wood: { name: "經典木桌", en: "Classic Wood", sketch: false, bg: ["#3A271D", "#3A271D"], doodle: null,
-    cell: "#F6EFE2", frame: null, inner: ["#94613F", "#6F4630"], banner: "#F6EFE2", line: null, title: "#7A3B1E", sub: "#5B4A40",
-    eyebrow: "#E2B27A", head: "#F6EFE2", bar: "#F6EFE2", ink: "#3F322B", foot: "#F6EFE2", footDim: "#D9C7AE",
-    badges: ["#C8372D", "#C8372D", "#C8372D", "#C8372D"], tape: null, shadow: "rgba(0,0,0,.4)" }
+  wood: { name: "經典木桌", en: "Classic Wood", sketch: true, bg: ["#C29672", "#9C7253"], grain: "#7A5236", doodleN: 40,
+    doodle: ["#FFF1D6", "#F6D9A8", "#F3B9A0", "#E8E2C4"],
+    cell: "#FFF8EC", frame: "#A0704E", inner: ["#EBD6BC", "#DABD98"], banner: "#FFF8EC", line: "#A0704E", title: "#7A4A2E", sub: "#9C7A60",
+    eyebrow: "#FFEBC9", head: "#FFF8EC", kw: "#7A4A2E", bar: "#FFF8EC", ink: "#4A3628", foot: "#FFF8EC", footDim: "#F3E0C6",
+    badges: ["#D9785F", "#6FA58E", "#D4A043", "#9C80B8"], tape: ["rgba(246,217,168,.88)", "rgba(243,185,160,.85)"], shadow: "rgba(70,40,20,.32)" }
 };
 const pubTheme = () => PUB_THEMES[PUB.theme] || PUB_THEMES.garden;
 const PF_HAND = `"LXGW WenKai TC", "Kaiti TC", "DFKai-SB", serif`;
@@ -3080,9 +3081,24 @@ function pubHeart(ctx, x, y, s) { ctx.beginPath(); ctx.moveTo(x, y + s * .9); ct
 function pubBackground(ctx, th, seed) {
   const g = ctx.createLinearGradient(0, 0, 1080, 1350); g.addColorStop(0, th.bg[0]); g.addColorStop(1, th.bg[1]);
   ctx.fillStyle = g; ctx.fillRect(0, 0, 1080, 1350);
+  if (th.grain) { // soft hand-drawn wood grain
+    const gr = pubRand(seed + 500);
+    ctx.strokeStyle = th.grain; ctx.lineCap = "round";
+    for (let k = 0; k < 30; k++) {
+      const y0 = k * 46 + gr() * 24; ctx.globalAlpha = .1 + gr() * .14; ctx.lineWidth = 1.5 + gr() * 2.5;
+      ctx.beginPath(); ctx.moveTo(-20, y0);
+      for (let x = 0; x < 1100; x += 120) ctx.quadraticCurveTo(x + 60, y0 + (gr() - .5) * 26, x + 120, y0 + (gr() - .5) * 10);
+      ctx.stroke();
+    }
+    for (let k = 0; k < 4; k++) { // a few knots
+      const x = 100 + gr() * 880, y = 80 + gr() * 1190; ctx.globalAlpha = .16; ctx.lineWidth = 2;
+      for (let r = 1; r <= 3; r++) { ctx.beginPath(); ctx.ellipse(x, y, 10 * r + 6, 4 * r + 2, 0, 0, Math.PI * 2); ctx.stroke(); }
+    }
+    ctx.globalAlpha = 1;
+  }
   if (!th.doodle) return;
   const rand = pubRand(seed);
-  for (let i = 0; i < 70; i++) {
+  for (let i = 0; i < (th.doodleN || 70); i++) {
     const x = rand() * 1080, y = rand() * 1350, k = rand(), s = 6 + rand() * 12;
     ctx.fillStyle = ctx.strokeStyle = th.doodle[Math.floor(rand() * th.doodle.length)];
     ctx.globalAlpha = .55 + rand() * .4;
@@ -3201,7 +3217,7 @@ async function pubSlide(n) {
           const kwW = ctx.measureText(kw).width; ctx.save(); ctx.globalAlpha = .28; ctx.fillStyle = th.badges[i];
           ctx.beginPath(); ctx.moveTo(198, ty - 20); ctx.lineTo(210 + kwW, ty - 24); ctx.lineTo(212 + kwW, ty - 2); ctx.lineTo(200, ty + 1); ctx.closePath(); ctx.fill(); ctx.restore();
         }
-        pubText(ctx, kw, 204, ty - 46 * .25, th.sketch ? th.head === "#FFFFFF" ? th.title : th.head : th.title, true);
+        pubText(ctx, kw, 204, ty - 46 * .25, th.kw || (th.sketch ? th.head === "#FFFFFF" ? th.title : th.head : th.title), true);
         if (b.lines.length) ty += 8;
       }
       ctx.font = `400 30px ${PF.sans}`; ctx.fillStyle = th.ink;
