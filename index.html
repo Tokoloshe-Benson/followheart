@@ -644,6 +644,23 @@ details.panel[open] > summary::after { content: "－"; }
 .deckseg button { font-size: .95rem; }
 #tarotEyebrow { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
 .deckseg .priv-in { animation: privIn .5s ease both; }
+.deckseg [data-kind="mix"] { grid-column: 1 / -1; }
+.mixpick { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.mixpick .mp-label { width: 100%; font-size: .82rem; color: var(--moon-dim); letter-spacing: .06em; }
+.mixpick button {
+  min-height: 36px; padding: 4px 11px; border-radius: 999px; font-size: .86rem;
+  border: 1px solid rgba(201,169,97,.35); background: none; color: var(--moon-dim);
+}
+.mixpick button[aria-pressed="true"] { background: rgba(201,169,97,.18); border-color: var(--gold); color: var(--parch); }
+.mixpick button[aria-pressed="true"]::before { content: "✓ "; color: var(--gold); }
+.deckbar.mixmode { flex-wrap: wrap; }
+.piles { display: flex; align-items: flex-end; justify-content: center; gap: 12px; width: 100%; }
+.pile { flex: 0 1 64px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; border: 0; padding: 0; background: none; color: var(--moon); }
+.pile .deck { width: 48px; pointer-events: none; }
+.pile:active .deck { transform: scale(.94); }
+.pile-name { font-size: .74rem; line-height: 1.2; color: var(--parch); white-space: nowrap; }
+.pile-n { font-size: .7rem; color: var(--gold); letter-spacing: .06em; }
+.pile.empty { opacity: .35; }
 @keyframes privIn { from { opacity: 0; transform: translateY(-4px); } }
 .lot-big {
   position: relative; width: 100%; min-height: 240px; box-sizing: border-box; margin-top: 34px; /* clear the close button */
@@ -778,6 +795,8 @@ details.panel[open] > summary::after { content: "－"; }
   .free { grid-template-columns: 150px minmax(0, 1fr); align-items: start; }
   .deckbar { flex-direction: column; align-items: flex-start; top: calc(env(safe-area-inset-top, 0px) + 16px); }
   .deck { width: 96px; }
+  .piles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 10px; }
+  .pile .deck { width: 52px; }
   .table { --tw: 104px; min-height: 560px; }
   .lot-stage { grid-template-columns: 220px minmax(0, 1fr); align-items: center; justify-items: center; padding: 26px; }
   .lot-stage .lot-left { display: grid; gap: 10px; justify-items: center; }
@@ -922,7 +941,9 @@ details.panel[open] > summary::after { content: "－"; }
     </div>
 
     <div class="free" id="freeStage" hidden>
-      <div class="deckbar">
+      <div class="mixpick" id="mixPick" hidden></div>
+      <div class="deckbar" id="deckBar">
+        <div class="piles" id="piles" hidden></div>
         <button type="button" class="deck" id="deck" data-i18n-aria="deck.aria" aria-label="從牌堆抽一張牌">
           <span class="layer"></span><span class="layer"></span><span class="layer"></span>
         </button>
@@ -1216,6 +1237,15 @@ const I18N = {
     "leno.title": "雷諾曼占卜",
     "deck.osho": "奧修禪卡",
     "deck.thoth": "托特塔羅",
+    "deck.mix": "混合抽牌",
+    "mix.eyebrow": "Mixed decks",
+    "mix.title": "混合抽牌",
+    "mix.pick": "這次要用的牌組（點一下可以加入或拿掉）",
+    "mix.needOne": "至少要留一副牌",
+    "pile.rws": "萊德偉特",
+    "pile.leno": "雷諾曼",
+    "pile.osho": "奧修",
+    "pile.thoth": "托特",
     "osho.eyebrow": "Osho Zen · 79 cards",
     "osho.title": "奧修禪卡",
     "thoth.eyebrow": "Thoth · 78 cards",
@@ -1679,6 +1709,14 @@ const I18N = {
     "leno.title": "Lenormand Reading",
     "deck.osho": "Osho Zen",
     "deck.thoth": "Thoth",
+    "deck.mix": "Mixed Draw",
+    "mix.title": "Mixed Draw",
+    "mix.pick": "Decks to use this time (tap to add or remove)",
+    "mix.needOne": "Keep at least one deck",
+    "pile.rws": "Rider–Waite",
+    "pile.leno": "Lenormand",
+    "pile.osho": "Osho",
+    "pile.thoth": "Thoth",
     "osho.title": "Osho Zen Tarot",
     "thoth.title": "Thoth Tarot",
     "leno.note": "Lenormand uses no reversals. Neighboring cards can be read together as one sentence.",
@@ -2200,6 +2238,9 @@ const privCards = (deck, img) => PRIV_RAW[deck].map((s, i) => {
   return { id: i, deck, p: { en, zh, kw: kw.split("、"), text, sub: PRIV_SUB[deck](i), img: `cards/${img}-${pad2(i)}.jpg` } };
 });
 const OCARDS = privCards("osho", "p1"), TCARDS = privCards("thoth", "p2");
+// mixed draw: every deck's cards in one list (id = index here), each pile drawn separately
+const MIX_KINDS = ["rws", "leno", "osho", "thoth"];
+const MCARDS = [CARDS, LCARDS, OCARDS, TCARDS].flat().map((c, i) => ({ ...c, id: i }));
 const BACK_OSHO = `<svg class="cardsvg" viewBox="0 0 1000 1480" aria-hidden="true">
   <rect x="4" y="4" width="992" height="1472" rx="40" fill="#050505" stroke="#c9a961" stroke-width="6"/>
   <rect x="64" y="56" width="872" height="1368" rx="6" fill="none" stroke="#e8e8e8" stroke-width="5"/>
@@ -2216,9 +2257,10 @@ const KINDS = {
   rws: { cards: CARDS, back: BACK, ar: 140 / 240, imgAr: 250 / 430, modes: ["single", "three", "free"], labels: "spread.", head: "tarot." },
   leno: { cards: LCARDS, back: BACK_LENO, ar: 160 / 238, imgAr: 848 / 1264, modes: ["single", "three", "nine", "free"], labels: "lspread.", head: "leno." },
   osho: { cards: OCARDS, back: BACK_OSHO, ar: 1000 / 1480, imgAr: 1000 / 1480, modes: ["free"], labels: "spread.", head: "osho.", priv: true },
+  mix: { cards: MCARDS, back: BACK, ar: 140 / 240, imgAr: 250 / 430, modes: ["free"], labels: "spread.", head: "mix.", priv: true, mix: true },
   thoth: { cards: TCARDS, back: BACK_THOTH, ar: 1000 / 1480, imgAr: 1000 / 1480, modes: ["free"], labels: "spread.", head: "thoth.", priv: true }
 };
-const T = { kind: "rws", mode: "single", deck: [], picks: [], free: [], z: 1 };
+const T = { kind: "rws", mode: "single", deck: [], picks: [], free: [], z: 1, piles: {}, mixOn: new Set(MIX_KINDS) };
 const K = () => KINDS[T.kind];
 const cardById = id => K().cards[id];
 const spreadLabels = () => t(K().labels + T.mode);
@@ -2230,6 +2272,8 @@ function applyKind() {
   root.setProperty("--card-ar", k.ar.toFixed(4));
   root.setProperty("--img-ar", k.imgAr.toFixed(4));
   deckEl.querySelectorAll(".layer").forEach(l => l.innerHTML = k.back);
+  deckEl.hidden = !!k.mix; $("#piles").hidden = $("#mixPick").hidden = !k.mix;
+  $("#deckBar").classList.toggle("mixmode", !!k.mix);
   document.querySelectorAll("#deckSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.kind === T.kind)));
 }
 function renderTarotHead() {
@@ -2242,7 +2286,8 @@ function renderTarotHead() {
 }
 
 function newRound(animate) {
-  T.deck = shuffle(K().cards.map(c => c.id));
+  T.deck = K().mix ? [] : shuffle(K().cards.map(c => c.id));
+  if (K().mix) T.piles = Object.fromEntries(MIX_KINDS.map(k => [k, shuffle(MCARDS.filter(c => c.deck === k).map(c => c.id))]));
   T.picks = []; T.free = []; T.z = 1;
   renderTarot(animate);
 }
@@ -2304,7 +2349,7 @@ function readingItems() {
   const free = T.mode === "free";
   const labels = free ? null : spreadLabels();
   return free
-    ? T.free.map((f, i) => ({ card: cardById(f.id), pos: t("tcard.pos", { n: i + 1 }) }))
+    ? T.free.map((f, i) => ({ card: cardById(f.id), pos: freePos(f, i) }))
     : T.picks.length >= labels.length ? T.picks.map((id, i) => ({ card: cardById(id), pos: labels[i] })) : [];
 }
 const readingDate = () => new Date().toLocaleDateString(document.documentElement.lang || "zh-Hant", { year: "numeric", month: "long", day: "numeric" });
@@ -2320,7 +2365,7 @@ function renderReading() {
       <div class="r-head"><span class="eyebrow">${esc(t("reading.eyebrow"))}</span><h2>${esc(t("reading.title"))}</h2></div>
       ${q ? `<p class="r-q">${esc(t("m.question", { q }))}</p>` : ""}
       <ol class="r-list">${items.map(({ card, pos }) => `<li>
-        <div class="r-thumb">${cardFace(card)}</div>
+        <div class="r-thumb" style="--card-ar:${KINDS[card.deck].ar}">${cardFace(card)}</div>
         <div>
           <div class="r-top">${items.length > 1 || free ? `<span class="r-pos">${esc(pos)}</span>` : ""}<h3 class="r-name">${esc(cardName(card))}</h3></div>
           <p class="r-kw">${cardKw(card).map(esc).join(" · ")}</p>
@@ -2551,9 +2596,9 @@ function pickFromSpread(btn) {
 // pos: slot index (fixed spreads) or a free-table item
 function showCard(card, pos) {
   const q = $("#tq").value.trim();
-  const label = typeof pos === "number" ? spreadLabels()[pos] : pos ? t("tcard.pos", { n: T.free.indexOf(pos) + 1 }) : "";
+  const label = typeof pos === "number" ? spreadLabels()[pos] : pos ? freePos(pos, T.free.indexOf(pos)) : "";
   openSheet(`
-    <div class="m-card ${card.deck}">${cardFace(card)}</div>
+    <div class="m-card ${card.deck}" style="--img-ar:${KINDS[card.deck].imgAr}">${cardFace(card)}</div>
     <div class="m-info">
       ${label ? `<p class="m-pos">${esc(label)}</p>` : ""}
       <h2>${esc(cardName(card))}</h2>
@@ -2596,7 +2641,9 @@ function renderTable(animate) {
   if (animate) { deckEl.classList.remove("shuffle"); void deckEl.offsetWidth; deckEl.classList.add("shuffle"); setTimeout(() => deckEl.classList.remove("shuffle"), 800); }
 }
 function updateDeck() {
-  $("#deckCount").textContent = t("deck.count", { left: T.deck.length, drawn: T.free.length });
+  const left = K().mix ? MIX_KINDS.filter(k => T.mixOn.has(k)).reduce((n, k) => n + T.piles[k].length, 0) : T.deck.length;
+  $("#deckCount").textContent = t("deck.count", { left, drawn: T.free.length });
+  if (K().mix) renderPiles();
   deckEl.classList.toggle("empty", T.deck.length === 0);
   renderReading();
 }
@@ -2604,7 +2651,7 @@ function placeEl(el, f) { el.style.left = f.x + "px"; el.style.top = f.y + "px";
 function makeTableCard(f, fresh) {
   const card = cardById(f.id);
   const el = document.createElement("div");
-  el.className = "tcard"; el.tabIndex = 0; el.setAttribute("role", "button");
+  el.className = "tcard"; el.style.setProperty("--card-ar", KINDS[card.deck].ar); el.tabIndex = 0; el.setAttribute("role", "button");
   el.setAttribute("aria-label", t("tcard.aria", { name: cardName(card) }));
   const c3 = makeCard3d(card, !fresh); el.appendChild(c3);
   const lab = document.createElement("span"); lab.className = "tlabel"; lab.textContent = fresh ? "" : cardName(card); el.appendChild(lab);
@@ -2615,9 +2662,10 @@ function makeTableCard(f, fresh) {
   el.addEventListener("contextmenu", e => e.preventDefault());
   return el;
 }
-function drawFree() {
-  if (!T.deck.length) { toast(t("toast.deckEmpty")); return; }
-  const id = T.deck.shift();
+function drawFree(pileKind) {
+  const src = K().mix ? T.piles[pileKind] : T.deck;
+  if (!src || !src.length) { toast(t("toast.deckEmpty")); return; }
+  const id = src.shift();
   const spot = findSpot();
   const f = { id, x: spot.x, y: spot.y, z: ++T.z };
   T.free.push(f);
@@ -2628,7 +2676,26 @@ function drawFree() {
   const r = el.getBoundingClientRect();
   if (r.bottom > window.innerHeight - 90 || r.top < 0) el.scrollIntoView({ behavior: "smooth", block: "center" });
 }
-deckEl.addEventListener("click", drawFree);
+deckEl.addEventListener("click", () => drawFree());
+// mixed draw: one face-down pile per chosen deck, plus the deck picker above it
+const freePos = (f, i) => t("tcard.pos", { n: i + 1 }) + (K().mix ? " · " + t("pile." + cardById(f.id).deck) : "");
+function renderPiles() {
+  $("#mixPick").innerHTML = `<span class="mp-label">${esc(t("mix.pick"))}</span>` + MIX_KINDS.map(k =>
+    `<button type="button" data-mixk="${k}" aria-pressed="${T.mixOn.has(k)}">${esc(t("pile." + k))}</button>`).join("");
+  $("#piles").innerHTML = MIX_KINDS.filter(k => T.mixOn.has(k)).map(k => {
+    const n = T.piles[k] ? T.piles[k].length : 0;
+    return `<button type="button" class="pile${n ? "" : " empty"}" data-pile="${k}" aria-label="${esc(t("pile." + k))} ${n}">
+      <span class="deck" style="--card-ar:${KINDS[k].ar}"><span class="layer">${KINDS[k].back}</span><span class="layer">${KINDS[k].back}</span><span class="layer">${KINDS[k].back}</span></span>
+      <span class="pile-name">${esc(t("pile." + k))}</span><span class="pile-n">${n}</span></button>`;
+  }).join("");
+}
+$("#piles").addEventListener("click", e => { const b = e.target.closest("[data-pile]"); if (b) drawFree(b.dataset.pile); });
+$("#mixPick").addEventListener("click", e => {
+  const b = e.target.closest("[data-mixk]"); if (!b) return;
+  const k = b.dataset.mixk;
+  if (T.mixOn.has(k)) { if (T.mixOn.size === 1) { toast(t("mix.needOne")); return; } T.mixOn.delete(k); } else T.mixOn.add(k);
+  updateDeck();
+});
 
 /* drag: long-press (touch) or press-and-move (mouse) to pick up a card */
 let press = null, scrollRaf = 0;
@@ -2748,7 +2815,7 @@ $("#tarotEyebrow").addEventListener("click", async () => {
   const seg = $("#deckSeg"), open = !!seg.querySelector("[data-priv]");
   if (navigator.vibrate) try { navigator.vibrate(open ? [10, 60, 10] : 18); } catch (e) {}
   if (!open) {
-    seg.insertAdjacentHTML("beforeend", ["osho", "thoth"].map(k => `<button type="button" class="priv-in" data-kind="${k}" data-priv aria-pressed="false" data-i18n="deck.${k}">${esc(t("deck." + k))}</button>`).join(""));
+    seg.insertAdjacentHTML("beforeend", ["osho", "thoth", "mix"].map(k => `<button type="button" class="priv-in" data-kind="${k}" data-priv aria-pressed="false" data-i18n="deck.${k}">${esc(t("deck." + k))}</button>`).join(""));
     return;
   }
   if (K().priv) {
