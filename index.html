@@ -2877,7 +2877,7 @@ $("#tarotEyebrow").addEventListener("click", async () => {
 });
 /* ================= 大眾占卜 (hidden): build a 3-slide IG carousel, 1080×1350 ================= */
 // state lives in memory only: uploaded photos and text are gone after a reload
-const PUB = { on: false, q: "", sub: "憑直覺選一組，選好再往下滑", ask: "你選了哪一個？留言告訴我", note: "僅供參考", cap: "", opts: [], blobs: [], urls: [] };
+const PUB = { on: false, q: "", sub: "憑直覺選一組，選好再往下滑", ask: "你選了哪一個？留言告訴我", note: "僅供參考", theme: "garden", cap: "", opts: [], blobs: [], urls: [] };
 const PUB_L = ["A", "B", "C", "D"];
 const PUBC = { bg: "#3A271D", cream: "#F6EFE2", red: "#C8372D", brown: "#7A3B1E", ink: "#3F322B", sub: "#5B4A40", gold: "#E2B27A", dim: "#D9C7AE" };
 const PF = { serif: `"Noto Serif TC", "Songti TC", serif`, sans: `"Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif` };
@@ -2907,6 +2907,8 @@ function pubRender() {
   box.innerHTML = `
     <div class="pub-box">
       <h2 class="pub-h">大眾占卜圖卡</h2>
+      <p class="pl">圖卡風格</p>
+      <div class="pub-btns">${Object.entries(PUB_THEMES).map(([k, v]) => `<button type="button" class="pub-mini${PUB.theme === k ? " solid" : ""}" data-act="theme" data-theme="${k}" aria-pressed="${PUB.theme === k}">${v.name}</button>`).join("")}</div>
       <p class="pub-tip">每組可以放 1～4 張牌。每張先選牌組，再按「抽牌」；不喜歡可以重抽，或在第二個選單直接指定。做好後在最下面存下三張圖。</p>
       <label class="pl" for="pubQ">題目</label><input type="text" id="pubQ" data-f="q" maxlength="40" value="${esc(PUB.q)}" placeholder="例如：最近有人，在默默關心你嗎？">
       <label class="pl" for="pubSub">題目下方小字（第 1 張圖）</label><input type="text" id="pubSub" data-f="sub" maxlength="30" value="${esc(PUB.sub)}">
@@ -3003,79 +3005,170 @@ async function pubCards(ctx, o, faceUp, X, Y, W, H) {
     const left = X + (W - (inRow * bw + (inRow - 1) * gap)) / 2 + col * (bw + gap);
     const by = top + row * (bh + gap);
     const f = pubFit(KINDS[c.deck].ar, bw, bh), x = left + (bw - f.w) / 2, y = by + (bh - f.h) / 2;
-    ctx.save(); ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = 14; ctx.shadowOffsetY = 6;
+    ctx.save(); ctx.shadowColor = pubTheme().shadow; ctx.shadowBlur = 14; ctx.shadowOffsetY = 6;
     if (faceUp || c.deck !== "thoth") ctx.drawImage(imgs[k], x, y, f.w, f.h);
     else { rrect(ctx, x, y, f.w, f.h, 8); ctx.fillStyle = "#000"; ctx.fill(); ctx.shadowColor = "transparent"; ctx.clip(); ctx.drawImage(imgs[k], x, y, f.w, f.h); }
     ctx.restore();
   });
 }
-function pubBadge(ctx, x, y, letter) {
-  ctx.beginPath(); ctx.arc(x + 46, y + 46, 46, 0, Math.PI * 2); ctx.fillStyle = PUBC.cream; ctx.fill();
-  ctx.beginPath(); ctx.arc(x + 46, y + 46, 41, 0, Math.PI * 2); ctx.fillStyle = PUBC.red; ctx.fill();
-  ctx.font = `700 56px ${PF.sans}`; ctx.fillStyle = PUBC.cream; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillText(letter, x + 46, y + 49); ctx.textBaseline = "alphabetic";
+// looks for the carousel; "sketch" ones get wobbly hand-drawn lines, doodles and washi tape
+const PUB_THEMES = {
+  garden: { name: "奶茶花園", sketch: true, bg: ["#FFF3EA", "#F8DDCD"], doodle: ["#F08A73", "#F2B84B", "#7CC4B5", "#B39DDB"],
+    cell: "#FFFDF9", frame: "#C07A5E", inner: ["#F6E4D5", "#EDCDB6"], banner: "#FFFDF8", line: "#C07A5E", title: "#8A4A33", sub: "#A27461",
+    eyebrow: "#D9775E", head: "#6B3E2E", bar: "#FFFDF9", ink: "#4E3A31", foot: "#6B3E2E", footDim: "#A88B7D",
+    badges: ["#EE7D67", "#3FA596", "#E3A12E", "#9179D0"], tape: ["rgba(242,184,75,.72)", "rgba(124,196,181,.72)"], shadow: "rgba(120,70,40,.28)" },
+  sky: { name: "粉彩星空", sketch: true, bg: ["#3A4380", "#6E5CA3"], doodle: ["#FFF3B0", "#FFFFFF", "#FFC2D1", "#B9E6FF"],
+    cell: "#FDF9FF", frame: "#8E7CC3", inner: ["#D9D1F4", "#B8C6EE"], banner: "#FFFDF5", line: "#8E7CC3", title: "#56459A", sub: "#8576B5",
+    eyebrow: "#FFD36E", head: "#FFFFFF", bar: "#FFFDF8", ink: "#3F3560", foot: "#FFFFFF", footDim: "#DCD3F5",
+    badges: ["#FF6F8E", "#2FB3A3", "#F0A92E", "#8A73EC"], tape: ["rgba(255,194,209,.82)", "rgba(255,243,176,.82)"], shadow: "rgba(30,20,70,.35)" },
+  forest: { name: "晨光森林", sketch: true, bg: ["#F4F7EA", "#DFE9C8"], doodle: ["#8DB36B", "#F2B134", "#E8957A", "#7FB7D6"],
+    cell: "#FFFEF8", frame: "#7A9A5E", inner: ["#E6EED3", "#D2E1B5"], banner: "#FFFEF8", line: "#7A9A5E", title: "#4E6B37", sub: "#7D8F6A",
+    eyebrow: "#C9813E", head: "#3F5A2C", bar: "#FFFEF8", ink: "#3B4630", foot: "#3F5A2C", footDim: "#8A9A78",
+    badges: ["#E2725B", "#3E93B8", "#E0A021", "#8C6BC4"], tape: ["rgba(242,177,52,.7)", "rgba(232,149,122,.7)"], shadow: "rgba(60,80,30,.28)" },
+  wood: { name: "經典木桌", sketch: false, bg: ["#3A271D", "#3A271D"], doodle: null,
+    cell: "#F6EFE2", frame: null, inner: ["#94613F", "#6F4630"], banner: "#F6EFE2", line: null, title: "#7A3B1E", sub: "#5B4A40",
+    eyebrow: "#E2B27A", head: "#F6EFE2", bar: "#F6EFE2", ink: "#3F322B", foot: "#F6EFE2", footDim: "#D9C7AE",
+    badges: ["#C8372D", "#C8372D", "#C8372D", "#C8372D"], tape: null, shadow: "rgba(0,0,0,.4)" }
+};
+const pubTheme = () => PUB_THEMES[PUB.theme] || PUB_THEMES.garden;
+const PF_HAND = `"LXGW WenKai TC", "Kaiti TC", "DFKai-SB", serif`;
+const pubHead = () => pubTheme().sketch ? PF_HAND : PF.serif;
+const pubHeadW = () => pubTheme().sketch ? 400 : 700;
+function pubRand(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let x = s; x = Math.imul(x ^ x >>> 15, x | 1); x ^= x + Math.imul(x ^ x >>> 7, x | 61); return ((x ^ x >>> 14) >>> 0) / 4294967296; }; }
+// a rounded rectangle traced as points, then drawn with a slow wobble so it looks hand-drawn
+function pubSketchPath(ctx, x, y, w, h, r, rand, amp) {
+  const P = [], step = 22;
+  const seg = (x1, y1, x2, y2) => { const n = Math.max(1, Math.round(Math.hypot(x2 - x1, y2 - y1) / step)); for (let i = 0; i < n; i++) P.push([x1 + (x2 - x1) * i / n, y1 + (y2 - y1) * i / n]); };
+  const arc = (cx, cy, a0) => { for (let i = 0; i < 4; i++) { const a = a0 + i * Math.PI / 8; P.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } };
+  seg(x + r, y, x + w - r, y); arc(x + w - r, y + r, -Math.PI / 2); seg(x + w, y + r, x + w, y + h - r); arc(x + w - r, y + h - r, 0);
+  seg(x + w - r, y + h, x + r, y + h); arc(x + r, y + h - r, Math.PI / 2); seg(x, y + h - r, x, y + r); arc(x + r, y + r, Math.PI);
+  const ph = rand() * 6, f = .18 + rand() * .1;
+  const Q = P.map(([px, py], i) => [px + Math.sin(i * f + ph) * amp + (rand() - .5) * amp * .5, py + Math.cos(i * f * 1.3 + ph) * amp + (rand() - .5) * amp * .5]);
+  ctx.beginPath(); ctx.moveTo((Q[0][0] + Q[1][0]) / 2, (Q[0][1] + Q[1][1]) / 2);
+  for (let i = 1; i <= Q.length; i++) { const a = Q[i % Q.length], b = Q[(i + 1) % Q.length]; ctx.quadraticCurveTo(a[0], a[1], (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); }
+  ctx.closePath();
+}
+function pubSketch(ctx, x, y, w, h, r, color, width, seed, amp = 2.2) {
+  const rand = pubRand(seed);
+  ctx.save(); ctx.strokeStyle = color; ctx.lineCap = ctx.lineJoin = "round";
+  ctx.lineWidth = width; pubSketchPath(ctx, x, y, w, h, r, rand, amp); ctx.stroke();
+  ctx.globalAlpha = .55; ctx.lineWidth = width * .6; pubSketchPath(ctx, x + 1.5, y - 1, w - 2, h + 1, r, rand, amp * 1.3); ctx.stroke();
+  ctx.restore();
+}
+function pubTape(ctx, cx, cy, w, h, angle, color) {
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle); ctx.fillStyle = color;
+  ctx.beginPath(); ctx.moveTo(-w / 2, -h / 2);
+  for (let i = 0; i <= 6; i++) ctx.lineTo(-w / 2 + w * i / 6, -h / 2 + (i % 2 ? 2 : -1));
+  for (let i = 6; i >= 0; i--) ctx.lineTo(-w / 2 + w * i / 6, h / 2 + (i % 2 ? -1 : 2));
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+function pubSparkle(ctx, x, y, s) { ctx.beginPath(); ctx.moveTo(x, y - s); ctx.quadraticCurveTo(x, y, x + s, y); ctx.quadraticCurveTo(x, y, x, y + s); ctx.quadraticCurveTo(x, y, x - s, y); ctx.quadraticCurveTo(x, y, x, y - s); ctx.fill(); }
+function pubHeart(ctx, x, y, s) { ctx.beginPath(); ctx.moveTo(x, y + s * .9); ctx.bezierCurveTo(x - s * 1.4, y, x - s * .7, y - s, x, y - s * .35); ctx.bezierCurveTo(x + s * .7, y - s, x + s * 1.4, y, x, y + s * .9); ctx.fill(); }
+function pubBackground(ctx, th, seed) {
+  const g = ctx.createLinearGradient(0, 0, 1080, 1350); g.addColorStop(0, th.bg[0]); g.addColorStop(1, th.bg[1]);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 1080, 1350);
+  if (!th.doodle) return;
+  const rand = pubRand(seed);
+  for (let i = 0; i < 70; i++) {
+    const x = rand() * 1080, y = rand() * 1350, k = rand(), s = 6 + rand() * 12;
+    ctx.fillStyle = ctx.strokeStyle = th.doodle[Math.floor(rand() * th.doodle.length)];
+    ctx.globalAlpha = .55 + rand() * .4;
+    if (k < .4) pubSparkle(ctx, x, y, s);
+    else if (k < .6) pubHeart(ctx, x, y, s * .8);
+    else if (k < .85) { ctx.beginPath(); ctx.arc(x, y, s * .3, 0, Math.PI * 2); ctx.fill(); }
+    else { ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(x, y, s * .55, 0, Math.PI * 2); ctx.stroke(); }
+  }
+  ctx.globalAlpha = 1;
+}
+function pubBadge(ctx, x, y, i, ring = true) {
+  const th = pubTheme(), cx = x + 46, cy = y + 46;
+  if (th.sketch) {
+    ctx.save(); ctx.shadowColor = th.shadow; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
+    ctx.beginPath(); ctx.arc(cx, cy, 43, 0, Math.PI * 2); ctx.fillStyle = th.badges[i]; ctx.fill(); ctx.restore();
+    pubSketch(ctx, x + 2, y + 2, 88, 88, 44, "#FFFFFF", 3.5, 99 + i * 7, 1.6);
+    ctx.font = `400 58px ${PF_HAND}`; ctx.fillStyle = "#FFFFFF"; ctx.strokeStyle = "#FFFFFF"; ctx.lineWidth = 1.6;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(PUB_L[i], cx, cy + 3); ctx.strokeText(PUB_L[i], cx, cy + 3);
+  } else {
+    if (ring) { ctx.beginPath(); ctx.arc(cx, cy, 46, 0, Math.PI * 2); ctx.fillStyle = th.cell; ctx.fill(); }
+    ctx.beginPath(); ctx.arc(cx, cy, ring ? 41 : 46, 0, Math.PI * 2); ctx.fillStyle = th.badges[i]; ctx.fill();
+    ctx.font = `700 56px ${PF.sans}`; ctx.fillStyle = th.cell; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(PUB_L[i], cx, cy + 3);
+  }
+  ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+}
+// heavier strokes for the brush font, which only has one weight
+function pubText(ctx, str, x, y, color, bold) {
+  ctx.fillStyle = color; ctx.fillText(str, x, y);
+  if (bold && pubTheme().sketch) { ctx.strokeStyle = color; ctx.lineWidth = 1.4; ctx.strokeText(str, x, y); }
 }
 // a title that shrinks to fit one line, or wraps to two lines when it is very long
 function pubTitle(ctx, text, size, minSize, maxW) {
-  let s = size; ctx.font = `700 ${s}px ${PF.serif}`;
-  while (ctx.measureText(text).width > maxW && s > minSize) { s -= 2; ctx.font = `700 ${s}px ${PF.serif}`; }
+  const f = s => `${pubHeadW()} ${s}px ${pubHead()}`;
+  let s = size; ctx.font = f(s);
+  while (ctx.measureText(text).width > maxW && s > minSize) { s -= 2; ctx.font = f(s); }
   const lines = ctx.measureText(text).width > maxW ? wrapText(ctx, text, maxW) : [text];
   return { s, lines, w: Math.max(...lines.map(l => ctx.measureText(l).width)) };
 }
 async function pubSlide(n) {
+  const th = pubTheme();
   const all = [PUB.q, PUB.sub, PUB.ask, PUB.note, "解讀 · THE READING ABCD", ...PUB.opts.map(o => o.kw + o.text)].join("");
-  if (document.fonts && document.fonts.load) await Promise.all([`700 48px ${PF.serif}`, `500 26px ${PF.sans}`, `400 30px ${PF.sans}`, `700 56px ${PF.sans}`].map(f => document.fonts.load(f, all).catch(() => {})));
+  if (document.fonts && document.fonts.load) await Promise.all([`700 48px ${PF.serif}`, `400 48px ${PF_HAND}`, `500 26px ${PF.sans}`, `400 30px ${PF.sans}`, `700 56px ${PF.sans}`].map(f => document.fonts.load(f, all).catch(() => {})));
   const cv = document.createElement("canvas"); cv.width = 1080; cv.height = 1350;
   const ctx = cv.getContext("2d");
-  ctx.fillStyle = PUBC.bg; ctx.fillRect(0, 0, 1080, 1350);
+  pubBackground(ctx, th, 11 + n);
   const q = PUB.q.trim() || "（題目）";
   if (n < 3) {
     const faceUp = n === 2;
     // the question sits in its own band between the two rows, so it never covers a card;
     // slides 1 and 2 share the band height (from slide 1's banner) so cells and letters line up
-    const B1 = pubTitle(ctx, q, 48, 38, 880), sub = PUB.sub.trim();
+    const B1 = pubTitle(ctx, q, 50, 38, 860), sub = PUB.sub.trim();
     const band1 = 38 + B1.lines.length * B1.s * 1.3 + (sub ? 6 + 26 * 1.4 : 0);
     const band = Math.ceil(band1 + 28), cellH = (1350 - 72 - band) / 2;
     const cellY = r => 36 + r * (cellH + band);
     for (let i = 0; i < 4; i++) {
       const o = PUB.opts[i], cx = 36 + (i % 2) * 512, cy = cellY(Math.floor(i / 2));
-      rrect(ctx, cx, cy, 496, cellH, 6); ctx.fillStyle = PUBC.cream; ctx.fill();
+      ctx.save(); ctx.shadowColor = th.shadow; ctx.shadowBlur = th.sketch ? 16 : 0; ctx.shadowOffsetY = th.sketch ? 5 : 0;
+      rrect(ctx, cx, cy, 496, cellH, th.sketch ? 22 : 6); ctx.fillStyle = th.cell; ctx.fill(); ctx.restore();
       const X = cx + 16, Y = cy + 16, W = 464, H = cellH - 32;
-      ctx.save(); rrect(ctx, X, Y, W, H, 4); ctx.clip();
+      ctx.save(); rrect(ctx, X, Y, W, H, th.sketch ? 14 : 4); ctx.clip();
       const ph = o.photo[faceUp ? "reveal" : "cover"];
       if (ph) pubCover(ctx, ph.img, X, Y, W, H);
       else {
-        const g = ctx.createLinearGradient(X + W * .33, Y, X + W * .67, Y + H); g.addColorStop(0, "#94613F"); g.addColorStop(1, "#6F4630");
+        const g = ctx.createLinearGradient(X + W * .33, Y, X + W * .67, Y + H); g.addColorStop(0, th.inner[0]); g.addColorStop(1, th.inner[1]);
         ctx.fillStyle = g; ctx.fillRect(X, Y, W, H);
       }
       ctx.restore();
+      if (th.sketch) pubSketch(ctx, cx + 5, cy + 5, 486, cellH - 10, 18, th.badges[i], 3, 40 + i * 13 + n);
       if (!ph) await pubCards(ctx, o, faceUp, X, Y, W, H);
     }
-    for (let i = 0; i < 4; i++) pubBadge(ctx, 36 + (i % 2) * 512 - 8, cellY(Math.floor(i / 2)) - 8, PUB_L[i]);
-    const T1 = faceUp ? pubTitle(ctx, q, 36, 30, 900) : B1;
-    const lh = T1.s * 1.3, padX = faceUp ? 30 : 40;
+    for (let i = 0; i < 4; i++) pubBadge(ctx, 36 + (i % 2) * 512 - 8, cellY(Math.floor(i / 2)) - 8, i);
+    const T1 = faceUp ? pubTitle(ctx, q, 38, 30, 880) : B1;
+    const lh = T1.s * 1.3, padX = faceUp ? 34 : 44;
     ctx.font = `500 26px ${PF.sans}`;
     const subTxt = faceUp ? "" : sub, subW = subTxt ? ctx.measureText(subTxt).width : 0;
     const bw = Math.max(T1.w, subW) + padX * 2;
     const bh = faceUp ? 24 + T1.lines.length * lh : band1;
     const bx = 540 - bw / 2, by = 36 + cellH + (band - bh) / 2;
-    ctx.save(); ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = faceUp ? 24 : 30; ctx.shadowOffsetY = faceUp ? 8 : 10;
-    rrect(ctx, bx, by, bw, bh, faceUp ? 14 : 18); ctx.fillStyle = PUBC.cream; ctx.fill(); ctx.restore();
-    ctx.textAlign = "center"; ctx.fillStyle = PUBC.brown; ctx.font = `700 ${T1.s}px ${PF.serif}`;
+    ctx.save(); ctx.shadowColor = th.sketch ? th.shadow : "rgba(0,0,0,.45)"; ctx.shadowBlur = faceUp ? 24 : 30; ctx.shadowOffsetY = faceUp ? 8 : 10;
+    rrect(ctx, bx, by, bw, bh, th.sketch ? 26 : faceUp ? 14 : 18); ctx.fillStyle = th.banner; ctx.fill(); ctx.restore();
+    if (th.sketch) {
+      pubSketch(ctx, bx + 4, by + 4, bw - 8, bh - 8, 22, th.line, 2.6, 77 + n);
+      pubTape(ctx, bx + 26, by + 4, 78, 24, -.5, th.tape[0]); pubTape(ctx, bx + bw - 26, by + 4, 78, 24, .5, th.tape[1]);
+    }
+    ctx.textAlign = "center"; ctx.font = `${pubHeadW()} ${T1.s}px ${pubHead()}`;
     let y = by + (faceUp ? 12 : 20);
-    T1.lines.forEach(l => { y += lh; ctx.fillText(l, 540, y - lh * .25); });
-    if (subTxt) { ctx.font = `500 26px ${PF.sans}`; ctx.fillStyle = PUBC.sub; ctx.fillText(subTxt, 540, y + 6 + 26 * 1.1); }
+    T1.lines.forEach(l => { y += lh; pubText(ctx, l, 540, y - lh * .25, th.title, true); });
+    if (subTxt) { ctx.font = `500 26px ${PF.sans}`; ctx.fillStyle = th.sub; ctx.fillText(subTxt, 540, y + 6 + 26 * 1.1); }
   } else {
     ctx.textAlign = "left";
     let y = 64;
-    ctx.font = `500 26px ${PF.sans}`; ctx.fillStyle = PUBC.gold;
+    ctx.font = `500 26px ${PF.sans}`; ctx.fillStyle = th.eyebrow;
     if ("letterSpacing" in ctx) ctx.letterSpacing = "6px";
     ctx.fillText("解讀 · THE READING", 64, y + 26); if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
     y += 26 * 1.3 + 14;
-    let qs = 52; ctx.font = `700 ${qs}px ${PF.serif}`;
+    let qs = 54; ctx.font = `${pubHeadW()} ${qs}px ${pubHead()}`;
     let ql = wrapText(ctx, q, 952);
-    if (ql.length > 2) { qs = 44; ctx.font = `700 ${qs}px ${PF.serif}`; ql = wrapText(ctx, q, 952); }
-    ctx.fillStyle = PUBC.cream; ql.forEach(l => { y += qs * 1.25; ctx.fillText(l, 64, y - qs * .22); });
+    if (ql.length > 2) { qs = 44; ctx.font = `${pubHeadW()} ${qs}px ${pubHead()}`; ql = wrapText(ctx, q, 952); }
+    ql.forEach(l => { y += qs * 1.25; pubText(ctx, l, 64, y - qs * .22, th.head, true); });
     y += 32;
     const footTop = 1350 - 56 - 44;
     ctx.font = `400 30px ${PF.sans}`;
@@ -3083,17 +3176,27 @@ async function pubSlide(n) {
     const total = bars.reduce((s, b) => s + b.h, 0), area = footTop - 32 - y;
     const gap = Math.max(12, (area - total) / 3);
     bars.forEach((b, i) => {
-      rrect(ctx, 48, y, 984, b.h, 8); ctx.fillStyle = PUBC.cream; ctx.fill();
-      ctx.beginPath(); ctx.arc(126, y + b.h / 2, 46, 0, Math.PI * 2); ctx.fillStyle = PUBC.red; ctx.fill(); // no cream ring on the bars
-      ctx.font = `700 56px ${PF.sans}`; ctx.fillStyle = PUBC.cream; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(PUB_L[i], 126, y + b.h / 2 + 3); ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+      ctx.save(); ctx.shadowColor = th.shadow; ctx.shadowBlur = th.sketch ? 14 : 0; ctx.shadowOffsetY = th.sketch ? 4 : 0;
+      rrect(ctx, 48, y, 984, b.h, th.sketch ? 22 : 8); ctx.fillStyle = th.bar; ctx.fill(); ctx.restore();
+      if (th.sketch) pubSketch(ctx, 53, y + 5, 974, b.h - 10, 18, th.badges[i], 3, 200 + i * 17);
+      pubBadge(ctx, 80, y + (b.h - 92) / 2, i, false);
       const contentH = b.h - 48; let ty = y + 24 + (contentH - ((b.o.kw.trim() ? 46 * 1.3 : 0) + (b.o.kw.trim() && b.lines.length ? 8 : 0) + b.lines.length * 45)) / 2;
-      if (b.o.kw.trim()) { ctx.font = `700 46px ${PF.serif}`; ctx.fillStyle = PUBC.brown; ty += 46 * 1.3; ctx.fillText(b.o.kw.trim(), 204, ty - 46 * .25); if (b.lines.length) ty += 8; }
-      ctx.font = `400 30px ${PF.sans}`; ctx.fillStyle = PUBC.ink;
+      if (b.o.kw.trim()) {
+        const kw = b.o.kw.trim();
+        ctx.font = `${pubHeadW()} 48px ${pubHead()}`; ty += 46 * 1.3;
+        if (th.sketch) { // marker-pen highlight under the keyword
+          const kwW = ctx.measureText(kw).width; ctx.save(); ctx.globalAlpha = .28; ctx.fillStyle = th.badges[i];
+          ctx.beginPath(); ctx.moveTo(198, ty - 20); ctx.lineTo(210 + kwW, ty - 24); ctx.lineTo(212 + kwW, ty - 2); ctx.lineTo(200, ty + 1); ctx.closePath(); ctx.fill(); ctx.restore();
+        }
+        pubText(ctx, kw, 204, ty - 46 * .25, th.sketch ? th.head === "#FFFFFF" ? th.title : th.head : th.title, true);
+        if (b.lines.length) ty += 8;
+      }
+      ctx.font = `400 30px ${PF.sans}`; ctx.fillStyle = th.ink;
       b.lines.forEach(l => { ty += 45; ctx.fillText(l, 204, ty - 12); });
       y += b.h + gap;
     });
-    ctx.font = `500 30px ${PF.sans}`; ctx.fillStyle = PUBC.cream; ctx.fillText(PUB.ask.trim(), 64, 1350 - 56 - 10);
-    ctx.font = `400 24px ${PF.sans}`; ctx.fillStyle = PUBC.dim; ctx.textAlign = "right"; ctx.fillText(PUB.note.trim(), 1016, 1350 - 56 - 10);
+    ctx.font = th.sketch ? `400 34px ${PF_HAND}` : `500 30px ${PF.sans}`; pubText(ctx, PUB.ask.trim(), 64, 1350 - 56 - 10, th.foot, true);
+    ctx.font = `400 24px ${PF.sans}`; ctx.fillStyle = th.footDim; ctx.textAlign = "right"; ctx.fillText(PUB.note.trim(), 1016, 1350 - 56 - 10);
   }
   return new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("toBlob")), "image/png"));
 }
@@ -3152,7 +3255,8 @@ $("#pub").addEventListener("click", async e => {
   const b = e.target.closest("button[data-act]"); if (!b) return;
   const act = b.dataset.act, optEl = b.closest("[data-opt]"), o = optEl ? PUB.opts[+optEl.dataset.opt] : null;
   const slotEl = b.closest("[data-slot]"), j = slotEl ? +slotEl.dataset.slot : -1;
-  if (act === "reroll") { const s = o.slots[j]; s.id = pubRandom(s.deck, s.id); }
+  if (act === "theme") PUB.theme = b.dataset.theme;
+  else if (act === "reroll") { const s = o.slots[j]; s.id = pubRandom(s.deck, s.id); }
   else if (act === "rerollAll") { o.slots.forEach(s => { s.id = null; }); o.slots.forEach(s => { s.id = pubRandom(s.deck); }); }
   else if (act === "del") o.slots.splice(j, 1);
   else if (act === "add") o.slots.push({ deck: o.slots.length ? o.slots[o.slots.length - 1].deck : "rws", id: null });
