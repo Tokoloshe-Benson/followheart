@@ -1,0 +1,16 @@
+{
+  "name": "隨心工作坊",
+  "short_name": "隨心工作坊",
+  "description": "塔羅占卜、自寫短籤、觀音靈籤。",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#11152c",
+  "theme_color": "#11152c",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

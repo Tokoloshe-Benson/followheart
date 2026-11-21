@@ -10,6 +10,14 @@
 <meta property="og:description" content="帶著真正的問題而來，走回自己的內心。免費，手機就能用。">
 <meta property="og:image" content="https://tokoloshe-benson.github.io/followheart/og.png">
 <meta name="theme-color" content="#11152c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="隨心工作坊">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <style>[hidden]{display:none!important}</style>
 <title>隨心工作坊</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -223,6 +231,17 @@ button { cursor: pointer; }
 .ig-text .btn-row .btn { min-height: 38px; padding: 6px 14px; text-decoration: none; }
 .ig-text .btn svg { width: 16px; height: 16px; }
 .footnote { margin: 4px auto 0; max-width: 46ch; text-align: center; font-size: .76rem; line-height: 1.6; color: var(--moon-dim); opacity: .75; }
+.install {
+  width: 100%; max-width: 640px; margin: 8px auto 0; box-sizing: border-box;
+  display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px 14px; align-items: center;
+  padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(201,169,97,.3); background: rgba(255,255,255,.04);
+}
+.install img { width: 56px; height: 56px; border-radius: 13px; display: block; }
+.install-text strong { color: var(--parch); font-weight: 600; font-size: .95rem; }
+.install-text p { margin: 2px 0 0; font-size: .8rem; line-height: 1.5; color: var(--moon-dim); }
+.install .btn { grid-column: 1 / -1; justify-self: center; }
+.install-h { margin: 0 0 10px; text-align: center; font-size: 1.05rem; color: var(--parch); letter-spacing: .08em; }
+.install-steps { margin: 0 0 16px; padding-left: 1.4em; display: grid; gap: 6px; line-height: 1.7; }
 .closing { margin: 6px 0 0; text-align: center; font-family: var(--f-lot); font-size: 1.3rem; letter-spacing: .3em; color: var(--gold); }
 /* ---------- visitor counter (GoatCounter) ---------- */
 .visits { margin: 10px auto 0; display: grid; justify-items: center; gap: 10px; text-align: center; }
@@ -944,6 +963,12 @@ details.panel[open] > summary::after { content: "－"; }
     <p class="footnote" data-i18n-html="home.note">占卜與短籤的結果僅供參考<br>重要的決定請依自己的判斷</p>
     <p class="closing" data-i18n="home.closing">心在，一切安在</p>
 
+    <section class="install" id="install" hidden aria-labelledby="installTitle">
+      <img src="icon-192.png" alt="" width="56" height="56">
+      <div class="install-text"><strong id="installTitle" data-i18n="install.title">把隨心工作坊放到手機桌面</strong><p data-i18n="install.text">像 App 一樣，一點就打開</p></div>
+      <button type="button" class="btn t-btn solid" id="installBtn" data-i18n="install.btn">安裝到手機</button>
+    </section>
+
     <section class="visits" id="visits" hidden data-i18n-aria="visits.aria" aria-label="來訪人數">
       <div class="visits-orn" aria-hidden="true">✦</div>
       <p class="visits-eyebrow">Visitors</p>
@@ -1232,6 +1257,14 @@ const I18N = {
     "toast.handleCopied": "已複製 IG 帳號 @followheart520",
     "home.note": "占卜與短籤的結果僅供參考<br>重要的決定請依自己的判斷",
     "home.closing": "心在，一切安在",
+    "install.title": "把隨心工作坊放到手機桌面",
+    "install.text": "像 App 一樣，一點就打開",
+    "install.btn": "安裝到手機",
+    "install.how": "加到手機桌面的方法",
+    "install.ios": ["用 Safari 打開這個網站（如果是在 IG 或 LINE 裡打開的，先點右上角，選「用瀏覽器開啟」）", "點畫面下方的「分享」按鈕（方框加向上箭頭）", "往下滑，點「加入主畫面」", "點右上角的「新增」，桌面就會出現隨心工作坊"],
+    "install.other": ["如果是在 IG 或 LINE 裡打開的，先點右上角，選「用瀏覽器開啟」", "點瀏覽器右上角的選單（三個點）", "選「安裝應用程式」或「加到主畫面」", "按「安裝」，桌面就會出現隨心工作坊"],
+    "install.ok": "知道了",
+    "install.done": "已經加到手機桌面了",
     "visits.aria": "來訪人數",
     "visits.cap": "已有 {n} 位朋友來過這裡",
 
@@ -1705,6 +1738,14 @@ const I18N = {
     "toast.handleCopied": "Copied @followheart520",
     "home.note": "Tarot readings and slips are for reference only. Please trust your own judgment for important decisions.",
     "home.closing": "When your heart is here, all is well.",
+    "install.title": "Put Follow Heart on your home screen",
+    "install.text": "Opens in one tap, just like an app",
+    "install.btn": "Add to phone",
+    "install.how": "How to add it to your home screen",
+    "install.ios": ["Open this site in Safari (if you opened it inside Instagram or LINE, tap the top-right menu and choose “Open in browser”)", "Tap the Share button at the bottom (a square with an up arrow)", "Scroll down and tap “Add to Home Screen”", "Tap “Add” at the top right"],
+    "install.other": ["If you opened it inside Instagram or LINE, tap the top-right menu and choose “Open in browser”", "Tap the browser menu at the top right (three dots)", "Choose “Install app” or “Add to Home screen”", "Tap “Install”"],
+    "install.ok": "Got it",
+    "install.done": "Added to your home screen",
     "visits.aria": "Visitor count",
     "visits.cap": "{n} friends have stopped by",
 
@@ -3818,6 +3859,22 @@ function applyLanguage() {
   renderVisits();
   if (PUB.on) pubRender();
 }
+
+/* ================= add to home screen =================
+   只在主站（有 manifest）顯示；已經從桌面打開的就不顯示 */
+const installState = { prompt: null };
+const hasManifest = !!document.querySelector('link[rel="manifest"]');
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+$("#install").hidden = !hasManifest || isStandalone();
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installState.prompt = e; });
+window.addEventListener("appinstalled", () => { installState.prompt = null; $("#install").hidden = true; toast(t("install.done")); });
+$("#installBtn").addEventListener("click", async () => {
+  if (installState.prompt) { const p = installState.prompt; installState.prompt = null; p.prompt(); try { await p.userChoice; } catch (e) {} return; }
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  openSheet(`<h3 class="install-h">${esc(t("install.how"))}</h3><ol class="install-steps">${t(ios ? "install.ios" : "install.other").map(x => `<li>${esc(x)}</li>`).join("")}</ol>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn t-btn solid" data-answer="ok">${esc(t("install.ok"))}</button></div>`, "t");
+});
+if (hasManifest && "serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
 
 /* ================= visitor counter (GoatCounter) =================
    GC_CODE 是 GoatCounter 的代碼（xxx.goatcounter.com 的 xxx）。空白時不計數、也不顯示。
