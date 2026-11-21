@@ -15,7 +15,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=LXGW+WenKai+TC&family=Noto+Serif+TC:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=LXGW+WenKai+TC&family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
 /* Layout: one column app, bottom tab bar; tarot = night table with gold, lots = soft paper in a chosen palette */
 :root {
@@ -644,7 +644,47 @@ details.panel[open] > summary::after { content: "－"; }
 .deckseg button { font-size: .95rem; }
 #tarotEyebrow { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
 .deckseg .priv-in { animation: privIn .5s ease both; }
-.deckseg [data-kind="mix"] { grid-column: 1 / -1; }
+#view-tarot.pubmode > :not(.view-head):not(#deckSeg):not(#pub) { display: none !important; }
+.pub { display: grid; gap: 16px; }
+.pub-box { display: grid; gap: 8px; padding: 14px; border-radius: 14px; border: 1px solid rgba(201,169,97,.28); background: rgba(255,255,255,.04); min-width: 0; }
+.pub-h { margin: 0; font-family: var(--f-display); font-size: 1.1rem; letter-spacing: .1em; color: var(--parch); }
+.pub-tip { margin: 0; font-size: .82rem; line-height: 1.6; color: var(--moon-dim); }
+.pub .pl { margin: 4px 0 0; font-size: .84rem; color: var(--moon-dim); }
+.pub input[type="text"], .pub textarea, .pub select {
+  width: 100%; box-sizing: border-box; min-height: 42px; padding: 8px 12px; border-radius: 10px;
+  border: 1px solid rgba(201,169,97,.3); background: rgba(255,255,255,.05); color: var(--moon); font: inherit; font-size: 16px;
+}
+.pub select { padding: 6px 8px; }
+.pub select option { color: #111; background: #fff; }
+.pub textarea { line-height: 1.6; resize: vertical; }
+.pub-opt-head { display: flex; align-items: center; gap: 10px; }
+.pub-opt-head strong { flex: 1; color: var(--parch); letter-spacing: .08em; }
+.pub-letter { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: #C8372D; color: #F6EFE2; font-weight: 700; border: 2px solid #F6EFE2; }
+.pub-slots { display: grid; gap: 10px; }
+.pub-slot { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.pub-thumb { width: 44px; aspect-ratio: var(--card-ar); }
+.pub-thumb .cardimg, .pub-thumb .cardwrap { width: 100%; height: 100%; }
+.pub-thumb .cardimg { border-radius: 3px; }
+.pub-thumb .cardimg.masked { border-radius: 0; }
+.pub-sels { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 6px; min-width: 0; }
+.pub-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pub-btns.col { flex-direction: column; align-items: stretch; }
+.pub-mini {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 4px 12px; border-radius: 10px;
+  border: 1px solid rgba(201,169,97,.4); background: none; color: var(--parch); font-size: .85rem; cursor: pointer; white-space: nowrap;
+}
+.pub-add { justify-self: start; }
+.pub-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.pub-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pub-photo { display: grid; gap: 6px; align-content: start; font-size: .8rem; color: var(--moon-dim); }
+.pub-photo img { width: 100%; aspect-ratio: 464 / 599; object-fit: cover; border-radius: 6px; }
+.pub-lines { margin: 0; font-size: .78rem; color: var(--moon-dim); min-height: 1em; }
+.pub-lines.warn { color: #f0a77a; }
+.pub-prev { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.pub-prev figure { margin: 0; display: grid; gap: 4px; }
+.pub-prev img { width: 100%; aspect-ratio: 1080 / 1350; display: block; border-radius: 6px; background: #3A271D; }
+.pub-prev figcaption { text-align: center; font-size: .75rem; color: var(--moon-dim); }
+@media (max-width: 420px) { .pub-sels { grid-template-columns: 1fr; } }
 .mixpick { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .mixpick .mp-label { width: 100%; font-size: .82rem; color: var(--moon-dim); letter-spacing: .06em; }
 .mixpick button {
@@ -921,6 +961,7 @@ details.panel[open] > summary::after { content: "－"; }
       <button type="button" data-kind="rws" aria-pressed="true" data-i18n="deck.rws">萊德偉特塔羅</button>
       <button type="button" data-kind="leno" aria-pressed="false" data-i18n="deck.leno">雷諾曼</button>
     </div>
+    <section class="pub" id="pub" hidden aria-label="大眾占卜"></section>
 
     <div class="notice" role="note">
       <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10 5.5v5.5M10 13.6v.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -1238,6 +1279,7 @@ const I18N = {
     "deck.osho": "奧修禪卡",
     "deck.thoth": "托特塔羅",
     "deck.mix": "混合抽牌",
+    "deck.pub": "大眾占卜",
     "mix.eyebrow": "Mixed decks",
     "mix.title": "混合抽牌",
     "mix.pick": "這次要用的牌組（點一下可以加入或拿掉）",
@@ -2796,8 +2838,11 @@ $("#modeSeg").addEventListener("click", async e => {
   newRound(true);
 });
 $("#deckSeg").addEventListener("click", async e => {
+  if (e.target.closest("[data-pub]")) { if (!PUB.on) setPub(true); return; }
   const b = e.target.closest("[data-kind]");
-  if (!b || b.dataset.kind === T.kind) return;
+  if (!b) return;
+  if (PUB.on) { setPub(false); if (b.dataset.kind === T.kind) return; }
+  if (b.dataset.kind === T.kind) return;
   if (!await confirmClear("ask.switchDeck", "btn.switchDeck")) return;
   T.kind = b.dataset.kind; if (!K().priv) store.set("tarot.kind", T.kind);
   if (!K().modes.includes(T.mode)) T.mode = K().priv ? "free" : store.get("tarot.mode", "single");
@@ -2815,7 +2860,8 @@ $("#tarotEyebrow").addEventListener("click", async () => {
   const seg = $("#deckSeg"), open = !!seg.querySelector("[data-priv]");
   if (navigator.vibrate) try { navigator.vibrate(open ? [10, 60, 10] : 18); } catch (e) {}
   if (!open) {
-    seg.insertAdjacentHTML("beforeend", ["osho", "thoth", "mix"].map(k => `<button type="button" class="priv-in" data-kind="${k}" data-priv aria-pressed="false" data-i18n="deck.${k}">${esc(t("deck." + k))}</button>`).join(""));
+    seg.insertAdjacentHTML("beforeend", ["osho", "thoth", "mix"].map(k => `<button type="button" class="priv-in" data-kind="${k}" data-priv aria-pressed="false" data-i18n="deck.${k}">${esc(t("deck." + k))}</button>`).join("")
+      + `<button type="button" class="priv-in" data-pub data-priv aria-pressed="false" data-i18n="deck.pub">${esc(t("deck.pub"))}</button>`);
     return;
   }
   if (K().priv) {
@@ -2824,8 +2870,300 @@ $("#tarotEyebrow").addEventListener("click", async () => {
     T.mode = store.get("tarot.mode", "single"); if (!K().modes.includes(T.mode)) T.mode = "single";
     applyKind(); newRound(true);
   }
+  if (PUB.on) setPub(false);
   seg.querySelectorAll("[data-priv]").forEach(b => b.remove());
 });
+/* ================= 大眾占卜 (hidden): build a 3-slide IG carousel, 1080×1350 ================= */
+// state lives in memory only: uploaded photos and text are gone after a reload
+const PUB = { on: false, q: "", sub: "憑直覺選一組，選好再往下滑", ask: "你選了哪一個？留言告訴我", note: "僅供娛樂與參考", cap: "", opts: [], blobs: [], urls: [] };
+const PUB_L = ["A", "B", "C", "D"];
+const PUBC = { bg: "#3A271D", cream: "#F6EFE2", red: "#C8372D", brown: "#7A3B1E", ink: "#3F322B", sub: "#5B4A40", gold: "#E2B27A", dim: "#D9C7AE" };
+const PF = { serif: `"Noto Serif TC", "Songti TC", serif`, sans: `"Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif` };
+const pubUsed = () => new Set(PUB.opts.flatMap(o => o.cards));
+function pubRandom(deck, keep) { // a card from this deck not already used anywhere in the post
+  const used = pubUsed(); if (keep != null) used.delete(keep);
+  const pool = MCARDS.filter(c => c.deck === deck && !used.has(c.id) && c.id !== keep);
+  const any = pool.length ? pool : MCARDS.filter(c => c.deck === deck);
+  return any[rnd(any.length)].id;
+}
+function pubInit() {
+  PUB.opts = PUB_L.map(() => ({ cards: [], kw: "", text: "", photo: { cover: null, reveal: null } }));
+  PUB.opts.forEach(o => { for (let j = 0; j < 4; j++) o.cards.push(pubRandom("rws")); });
+}
+const pubDeckName = k => t("pile." + k);
+const pubCardLabel = id => { const c = MCARDS[id]; return pubDeckName(c.deck) + "・" + cardName(c); };
+
+function pubRender() {
+  const box = $("#pub");
+  const deckOpts = sel => MIX_KINDS.map(k => `<option value="${k}"${k === sel ? " selected" : ""}>${esc(pubDeckName(k))}</option>`).join("");
+  const cardOpts = (deck, sel) => MCARDS.filter(c => c.deck === deck).map(c => `<option value="${c.id}"${c.id === sel ? " selected" : ""}>${esc(cardName(c))}</option>`).join("");
+  const photo = (o, which, label) => `<div class="pub-photo"><span>${label}</span>
+      ${o.photo[which] ? `<img src="${o.photo[which].url}" alt="">` : ""}
+      <div class="pub-btns"><label class="pub-mini">${o.photo[which] ? "換照片" : "選擇照片"}<input type="file" accept="image/*" class="pub-file" data-act="photo" data-which="${which}"></label>
+      ${o.photo[which] ? `<button type="button" class="pub-mini" data-act="unphoto" data-which="${which}">拿掉</button>` : ""}</div></div>`;
+  box.innerHTML = `
+    <div class="pub-box">
+      <h2 class="pub-h">大眾占卜圖卡</h2>
+      <p class="pub-tip">每組可以放 1～4 張牌，每張自己選牌組；先隨機抽，不喜歡可以重抽，或直接指定。做好後在最下面存下三張圖。</p>
+      <label class="pl" for="pubQ">題目</label><input type="text" id="pubQ" data-f="q" maxlength="40" value="${esc(PUB.q)}" placeholder="例如：最近有人，在默默關心你嗎？">
+      <label class="pl" for="pubSub">題目下方小字（第 1 張圖）</label><input type="text" id="pubSub" data-f="sub" maxlength="30" value="${esc(PUB.sub)}">
+    </div>
+    ${PUB.opts.map((o, i) => `<div class="pub-box" data-opt="${i}">
+      <div class="pub-opt-head"><span class="pub-letter">${PUB_L[i]}</span><strong>選項 ${PUB_L[i]}</strong>
+        <button type="button" class="pub-mini" data-act="rerollAll">這組全部重抽</button></div>
+      <div class="pub-slots">${o.cards.map((id, j) => { const c = MCARDS[id]; return `<div class="pub-slot" data-slot="${j}">
+          <div class="pub-thumb" style="--card-ar:${KINDS[c.deck].ar}">${cardFace(c)}</div>
+          <div class="pub-sels">
+            <select data-act="deck" aria-label="第 ${j + 1} 張的牌組">${deckOpts(c.deck)}</select>
+            <select data-act="card" aria-label="第 ${j + 1} 張指定牌">${cardOpts(c.deck, id)}</select>
+          </div>
+          <div class="pub-btns col"><button type="button" class="pub-mini" data-act="reroll">重抽</button>
+            ${o.cards.length > 1 ? `<button type="button" class="pub-mini" data-act="del" aria-label="拿掉第 ${j + 1} 張">拿掉</button>` : ""}</div>
+        </div>`; }).join("")}</div>
+      ${o.cards.length < 4 ? `<button type="button" class="pub-mini pub-add" data-act="add">＋ 加一張牌</button>` : ""}
+      <p class="pl">自己拍的照片（可以不放；放了就用照片取代牌圖）</p>
+      <div class="pub-photos">${photo(o, "cover", "第 1 張：蓋牌照")}${photo(o, "reveal", "第 2 張：翻牌照")}</div>
+      <label class="pl" for="pubKw${i}">關鍵詞（第 3 張圖）</label><input type="text" id="pubKw${i}" data-f="kw" maxlength="12" value="${esc(o.kw)}" placeholder="例如：默默守護">
+      <label class="pl" for="pubTx${i}">解讀重點（第 3 張圖，建議 2～3 行）</label><textarea id="pubTx${i}" data-f="text" rows="3">${esc(o.text)}</textarea>
+      <p class="pub-lines" data-lines></p>
+    </div>`).join("")}
+    <div class="pub-box">
+      <label class="pl" for="pubAsk">第 3 張圖底部：互動提問</label><input type="text" id="pubAsk" data-f="ask" maxlength="24" value="${esc(PUB.ask)}">
+      <label class="pl" for="pubNote">第 3 張圖底部：小字</label><input type="text" id="pubNote" data-f="note" maxlength="16" value="${esc(PUB.note)}">
+    </div>
+    <div class="pub-box">
+      <h2 class="pub-h">預覽</h2>
+      <div class="pub-prev">${[0, 1, 2].map(i => `<figure><img id="pubImg${i}" alt="第 ${i + 1} 張圖"><figcaption>${["1 題目", "2 翻牌", "3 解讀"][i]}</figcaption></figure>`).join("")}</div>
+      <div class="btn-row" style="justify-content:center"><button type="button" class="btn t-btn solid" data-act="save">${ICON_IMG}<span>存下三張圖</span></button></div>
+      <p class="pub-tip" style="text-align:center">手機也可以長按上面的圖，一張一張存到相簿。</p>
+    </div>
+    <div class="pub-box">
+      <h2 class="pub-h">貼文說明欄（完整解讀）</h2>
+      <p class="pub-tip">可以先產生草稿（會列出每組抽到的牌），再自己修改。</p>
+      <textarea id="pubCap" data-f="cap" rows="12">${esc(PUB.cap)}</textarea>
+      <div class="pub-btns"><button type="button" class="pub-mini" data-act="capDraft">用上面的內容產生草稿</button><button type="button" class="btn t-btn solid" data-act="capCopy">複製說明文字</button></div>
+    </div>`;
+  pubLines(); pubSchedule();
+}
+
+// how many lines each reading takes on slide 3 (30px, 796px wide)
+const pubMeasure = document.createElement("canvas").getContext("2d");
+function pubWrap(ctx, text, maxW) { return String(text).split("\n").flatMap(p => p.trim() ? wrapText(ctx, p.trim(), maxW) : []); }
+function pubLines() {
+  pubMeasure.font = `400 30px ${PF.sans}`;
+  $("#pub").querySelectorAll("[data-opt]").forEach(el => {
+    const n = pubWrap(pubMeasure, PUB.opts[+el.dataset.opt].text, 796).length, p = el.querySelector("[data-lines]");
+    p.textContent = n ? `圖上約 ${n} 行${n > 3 ? "，超過 3 行，圖上可能會擠，建議縮短" : ""}` : "";
+    p.classList.toggle("warn", n > 3);
+  });
+}
+
+let pubTimer = 0, pubGen = 0;
+const pubSchedule = () => { clearTimeout(pubTimer); pubTimer = setTimeout(pubDraw, 350); };
+async function pubDraw() {
+  const gen = ++pubGen;
+  let blobs;
+  try { blobs = await Promise.all([pubSlide(1), pubSlide(2), pubSlide(3)]); } catch (e) { console.warn(e); return; }
+  if (gen !== pubGen || !PUB.on) return;
+  PUB.urls.forEach(u => URL.revokeObjectURL(u));
+  PUB.blobs = blobs; PUB.urls = blobs.map(b => URL.createObjectURL(b));
+  PUB.urls.forEach((u, i) => { const im = $("#pubImg" + i); if (im) im.src = u; });
+}
+
+const pubBacks = {};
+function pubBack(deck) {
+  if (pubBacks[deck]) return pubBacks[deck];
+  let src = "cards/p2-back.jpg";
+  if (deck !== "thoth") {
+    const vb = KINDS[deck].back.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+    const defs = $("#backPat") ? $("#backPat").closest("defs").outerHTML : "";
+    const svg = KINDS[deck].back.replace(/<svg[^>]*>/, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vb[1]} ${vb[2]}" width="${vb[1] * 4}" height="${vb[2] * 4}">${defs}`);
+    src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+  return pubBacks[deck] = loadImg(src);
+}
+function pubFit(ar, bw, bh) { return ar < bw / bh ? { w: bh * ar, h: bh } : { w: bw, h: bw / ar }; }
+function pubCover(ctx, img, x, y, w, h) { // draw like object-fit: cover
+  const s = Math.max(w / img.naturalWidth, h / img.naturalHeight), sw = w / s, sh = h / s;
+  ctx.drawImage(img, (img.naturalWidth - sw) / 2, (img.naturalHeight - sh) / 2, sw, sh, x, y, w, h);
+}
+async function pubCards(ctx, o, faceUp, X, Y, W, H) {
+  const [bw, bh, gap] = faceUp ? [200, 276, 14] : [158, 272, 18];
+  const n = o.cards.length, rows = n > 2 ? 2 : 1;
+  const top = Y + (H - (rows * bh + (rows - 1) * gap)) / 2;
+  const imgs = await Promise.all(o.cards.map(id => { const c = MCARDS[id]; return faceUp ? cardBitmap(c, 400) : pubBack(c.deck); }));
+  o.cards.forEach((id, k) => {
+    const c = MCARDS[id], row = n > 2 && k >= 2 ? 1 : 0, inRow = row ? n - 2 : Math.min(n, 2), col = row ? k - 2 : k;
+    const left = X + (W - (inRow * bw + (inRow - 1) * gap)) / 2 + col * (bw + gap);
+    const by = top + row * (bh + gap);
+    const f = pubFit(KINDS[c.deck].ar, bw, bh), x = left + (bw - f.w) / 2, y = by + (bh - f.h) / 2;
+    ctx.save(); ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = 14; ctx.shadowOffsetY = 6;
+    if (faceUp || c.deck !== "thoth") ctx.drawImage(imgs[k], x, y, f.w, f.h);
+    else { rrect(ctx, x, y, f.w, f.h, 8); ctx.fillStyle = "#000"; ctx.fill(); ctx.shadowColor = "transparent"; ctx.clip(); ctx.drawImage(imgs[k], x, y, f.w, f.h); }
+    ctx.restore();
+  });
+}
+function pubBadge(ctx, x, y, letter) {
+  ctx.beginPath(); ctx.arc(x + 46, y + 46, 46, 0, Math.PI * 2); ctx.fillStyle = PUBC.cream; ctx.fill();
+  ctx.beginPath(); ctx.arc(x + 46, y + 46, 41, 0, Math.PI * 2); ctx.fillStyle = PUBC.red; ctx.fill();
+  ctx.font = `700 56px ${PF.sans}`; ctx.fillStyle = PUBC.cream; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(letter, x + 46, y + 49); ctx.textBaseline = "alphabetic";
+}
+// a title that shrinks to fit one line, or wraps to two lines when it is very long
+function pubTitle(ctx, text, size, minSize, maxW) {
+  let s = size; ctx.font = `700 ${s}px ${PF.serif}`;
+  while (ctx.measureText(text).width > maxW && s > minSize) { s -= 2; ctx.font = `700 ${s}px ${PF.serif}`; }
+  const lines = ctx.measureText(text).width > maxW ? wrapText(ctx, text, maxW) : [text];
+  return { s, lines, w: Math.max(...lines.map(l => ctx.measureText(l).width)) };
+}
+async function pubSlide(n) {
+  const all = [PUB.q, PUB.sub, PUB.ask, PUB.note, "解讀 · THE READING ABCD", ...PUB.opts.map(o => o.kw + o.text)].join("");
+  if (document.fonts && document.fonts.load) await Promise.all([`700 48px ${PF.serif}`, `500 26px ${PF.sans}`, `400 30px ${PF.sans}`, `700 56px ${PF.sans}`].map(f => document.fonts.load(f, all).catch(() => {})));
+  const cv = document.createElement("canvas"); cv.width = 1080; cv.height = 1350;
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = PUBC.bg; ctx.fillRect(0, 0, 1080, 1350);
+  const q = PUB.q.trim() || "（題目）";
+  if (n < 3) {
+    const faceUp = n === 2;
+    for (let i = 0; i < 4; i++) {
+      const o = PUB.opts[i], cx = 36 + (i % 2) * 512, cy = 36 + Math.floor(i / 2) * 647;
+      rrect(ctx, cx, cy, 496, 631, 6); ctx.fillStyle = PUBC.cream; ctx.fill();
+      const X = cx + 16, Y = cy + 16, W = 464, H = 599;
+      ctx.save(); rrect(ctx, X, Y, W, H, 4); ctx.clip();
+      const ph = o.photo[faceUp ? "reveal" : "cover"];
+      if (ph) pubCover(ctx, ph.img, X, Y, W, H);
+      else {
+        const g = ctx.createLinearGradient(X + W * .33, Y, X + W * .67, Y + H); g.addColorStop(0, "#94613F"); g.addColorStop(1, "#6F4630");
+        ctx.fillStyle = g; ctx.fillRect(X, Y, W, H);
+      }
+      ctx.restore();
+      if (!ph) await pubCards(ctx, o, faceUp, X, Y, W, H);
+    }
+    for (let i = 0; i < 4; i++) pubBadge(ctx, 36 + (i % 2) * 512 - 8, 36 + Math.floor(i / 2) * 647 - 8, PUB_L[i]);
+    // centre banner over the crossing of the four cells
+    const T1 = faceUp ? pubTitle(ctx, q, 36, 30, 900) : pubTitle(ctx, q, 48, 38, 880);
+    const lh = T1.s * 1.3, padX = faceUp ? 30 : 40;
+    ctx.font = `500 26px ${PF.sans}`;
+    const sub = faceUp ? "" : PUB.sub.trim(), subW = sub ? ctx.measureText(sub).width : 0;
+    const bw = Math.max(T1.w, subW) + padX * 2;
+    const bh = (faceUp ? 24 : 38) + T1.lines.length * lh + (sub ? 6 + 26 * 1.4 : 0);
+    const bx = 540 - bw / 2, by = 669 - bh; // sits just above the C/D badges so all four letters stay visible
+    ctx.save(); ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = faceUp ? 24 : 30; ctx.shadowOffsetY = faceUp ? 8 : 10;
+    rrect(ctx, bx, by, bw, bh, faceUp ? 14 : 18); ctx.fillStyle = PUBC.cream; ctx.fill(); ctx.restore();
+    ctx.textAlign = "center"; ctx.fillStyle = PUBC.brown; ctx.font = `700 ${T1.s}px ${PF.serif}`;
+    let y = by + (faceUp ? 12 : 20);
+    T1.lines.forEach(l => { y += lh; ctx.fillText(l, 540, y - lh * .25); });
+    if (sub) { ctx.font = `500 26px ${PF.sans}`; ctx.fillStyle = PUBC.sub; ctx.fillText(sub, 540, y + 6 + 26 * 1.1); }
+  } else {
+    ctx.textAlign = "left";
+    let y = 64;
+    ctx.font = `500 26px ${PF.sans}`; ctx.fillStyle = PUBC.gold;
+    if ("letterSpacing" in ctx) ctx.letterSpacing = "6px";
+    ctx.fillText("解讀 · THE READING", 64, y + 26); if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
+    y += 26 * 1.3 + 14;
+    let qs = 52; ctx.font = `700 ${qs}px ${PF.serif}`;
+    let ql = wrapText(ctx, q, 952);
+    if (ql.length > 2) { qs = 44; ctx.font = `700 ${qs}px ${PF.serif}`; ql = wrapText(ctx, q, 952); }
+    ctx.fillStyle = PUBC.cream; ql.forEach(l => { y += qs * 1.25; ctx.fillText(l, 64, y - qs * .22); });
+    y += 32;
+    const footTop = 1350 - 56 - 44;
+    ctx.font = `400 30px ${PF.sans}`;
+    const bars = PUB.opts.map(o => { const lines = pubWrap(ctx, o.text, 796); return { o, lines, h: 48 + Math.max(92, (o.kw.trim() ? 46 * 1.3 : 0) + (o.kw.trim() && lines.length ? 8 : 0) + lines.length * 45) }; });
+    const total = bars.reduce((s, b) => s + b.h, 0), area = footTop - 32 - y;
+    const gap = Math.max(12, (area - total) / 3);
+    bars.forEach((b, i) => {
+      rrect(ctx, 48, y, 984, b.h, 8); ctx.fillStyle = PUBC.cream; ctx.fill();
+      ctx.beginPath(); ctx.arc(126, y + b.h / 2, 46, 0, Math.PI * 2); ctx.fillStyle = PUBC.red; ctx.fill(); // no cream ring on the bars
+      ctx.font = `700 56px ${PF.sans}`; ctx.fillStyle = PUBC.cream; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(PUB_L[i], 126, y + b.h / 2 + 3); ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+      const contentH = b.h - 48; let ty = y + 24 + (contentH - ((b.o.kw.trim() ? 46 * 1.3 : 0) + (b.o.kw.trim() && b.lines.length ? 8 : 0) + b.lines.length * 45)) / 2;
+      if (b.o.kw.trim()) { ctx.font = `700 46px ${PF.serif}`; ctx.fillStyle = PUBC.brown; ty += 46 * 1.3; ctx.fillText(b.o.kw.trim(), 204, ty - 46 * .25); if (b.lines.length) ty += 8; }
+      ctx.font = `400 30px ${PF.sans}`; ctx.fillStyle = PUBC.ink;
+      b.lines.forEach(l => { ty += 45; ctx.fillText(l, 204, ty - 12); });
+      y += b.h + gap;
+    });
+    ctx.font = `500 30px ${PF.sans}`; ctx.fillStyle = PUBC.cream; ctx.fillText(PUB.ask.trim(), 64, 1350 - 56 - 10);
+    ctx.font = `400 24px ${PF.sans}`; ctx.fillStyle = PUBC.dim; ctx.textAlign = "right"; ctx.fillText(PUB.note.trim(), 1016, 1350 - 56 - 10);
+  }
+  return new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("toBlob")), "image/png"));
+}
+
+async function pubSaveBlob(blob, name) {
+  try {
+    if (window.claude && typeof window.claude.use === "function") {
+      const dl = await window.claude.use("downloads");
+      if (dl) { await dl.save({ filename: name, data: blob }); return true; }
+    }
+  } catch (err) { if (err && err.code === "declined") return false; }
+  const url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  return true;
+}
+function pubCaption() {
+  const out = [PUB.q.trim() || "（題目）", "", PUB.sub.trim(), ""];
+  PUB.opts.forEach((o, i) => {
+    out.push(`【${PUB_L[i]}】${o.kw.trim()}`);
+    out.push("抽到的牌：" + o.cards.map(pubCardLabel).join("、"));
+    if (o.text.trim()) out.push(o.text.trim());
+    out.push("");
+  });
+  out.push(PUB.ask.trim(), PUB.note.trim());
+  return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+function setPub(on) {
+  PUB.on = on;
+  $("#view-tarot").classList.toggle("pubmode", on);
+  $("#pub").hidden = !on;
+  document.querySelectorAll("#deckSeg button").forEach(b => b.setAttribute("aria-pressed", String(on ? b.hasAttribute("data-pub") : b.dataset.kind === T.kind)));
+  if (on) { if (!PUB.opts.length) pubInit(); pubRender(); }
+}
+$("#pub").addEventListener("input", e => {
+  const f = e.target.dataset.f; if (!f) return;
+  const optEl = e.target.closest("[data-opt]");
+  if (optEl) PUB.opts[+optEl.dataset.opt][f] = e.target.value; else PUB[f] = e.target.value;
+  if (f === "text") pubLines();
+  if (f !== "cap") pubSchedule();
+});
+$("#pub").addEventListener("change", async e => {
+  const act = e.target.dataset.act, optEl = e.target.closest("[data-opt]"); if (!act || !optEl) return;
+  const o = PUB.opts[+optEl.dataset.opt], slotEl = e.target.closest("[data-slot]"), j = slotEl ? +slotEl.dataset.slot : -1;
+  if (act === "deck") o.cards[j] = pubRandom(e.target.value, o.cards[j]);
+  else if (act === "card") o.cards[j] = +e.target.value;
+  else if (act === "photo") {
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const which = e.target.dataset.which, url = URL.createObjectURL(file);
+    try { const img = await loadImg(url); if (o.photo[which]) URL.revokeObjectURL(o.photo[which].url); o.photo[which] = { url, img }; }
+    catch (err) { URL.revokeObjectURL(url); toast("這張照片讀不進來，換一張試試"); return; }
+  } else return;
+  pubRender();
+});
+$("#pub").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  const act = b.dataset.act, optEl = b.closest("[data-opt]"), o = optEl ? PUB.opts[+optEl.dataset.opt] : null;
+  const slotEl = b.closest("[data-slot]"), j = slotEl ? +slotEl.dataset.slot : -1;
+  if (act === "reroll") o.cards[j] = pubRandom(MCARDS[o.cards[j]].deck, o.cards[j]);
+  else if (act === "rerollAll") { const decks = o.cards.map(id => MCARDS[id].deck); o.cards = []; decks.forEach(dk => o.cards.push(pubRandom(dk))); }
+  else if (act === "del") o.cards.splice(j, 1);
+  else if (act === "add") o.cards.push(pubRandom(o.cards.length ? MCARDS[o.cards[o.cards.length - 1]].deck : "rws"));
+  else if (act === "unphoto") { const w = b.dataset.which; if (o.photo[w]) URL.revokeObjectURL(o.photo[w].url); o.photo[w] = null; }
+  else if (act === "save") {
+    clearTimeout(pubTimer); await pubDraw();
+    if (PUB.blobs.length !== 3) { toast(t("toast.shotFail")); return; }
+    const d = new Date(), p = v => String(v).padStart(2, "0"), stamp = `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`;
+    for (let i = 0; i < 3; i++) { if (!await pubSaveBlob(PUB.blobs[i], `大眾占卜-${stamp}-${i + 1}.png`)) return; await new Promise(r => setTimeout(r, 450)); }
+    toast("已存下三張圖"); return;
+  } else if (act === "capDraft") {
+    if (PUB.cap.trim() && await ask("要用新的草稿取代現在的說明文字嗎？", [{ label: t("btn.cancel"), value: "no" }, { label: "取代", value: "yes", solid: true }], "t") !== "yes") return;
+    PUB.cap = pubCaption(); $("#pubCap").value = PUB.cap; return;
+  } else if (act === "capCopy") {
+    const ta = $("#pubCap");
+    try { await navigator.clipboard.writeText(ta.value); }
+    catch (err) { ta.select(); try { document.execCommand("copy"); } catch (e2) { toast("沒辦法自動複製，請長按文字自己複製"); return; } }
+    toast("已複製說明文字"); return;
+  } else return;
+  pubRender();
+});
+
 $("#tarotReset").addEventListener("click", () => {
   $("#tq").value = "";
   newRound(true);
