@@ -1753,6 +1753,7 @@ const I18N = {
     "leno.title": "Lenormand Reading",
     "deck.osho": "Osho Zen",
     "deck.thoth": "Thoth",
+    "deck.pub": "Public Reading",
     "deck.mix": "Mixed Draw",
     "mix.title": "Mixed Draw",
     "mix.pick": "Decks to use this time (tap to add or remove)",
@@ -2894,59 +2895,60 @@ function pubInit() {
   PUB.opts = PUB_L.map(() => ({ slots: [0, 1, 2, 3].map(() => ({ deck: "rws", id: null })), kw: "", text: "", photo: { cover: null, reveal: null } }));
 }
 const pubDeckName = k => t("pile." + k);
+const PL = (zh, en) => lang === "en" ? en : zh; // builder UI text (slide content stays as typed)
 const pubCardLabel = id => { const c = MCARDS[id]; return pubDeckName(c.deck) + "・" + cardName(c); };
 
 function pubRender() {
   const box = $("#pub");
   const deckOpts = sel => MIX_KINDS.map(k => `<option value="${k}"${k === sel ? " selected" : ""}>${esc(pubDeckName(k))}</option>`).join("");
-  const cardOpts = (deck, sel) => `<option value=""${sel == null ? " selected" : ""}>${sel == null ? "還沒抽・可指定" : "清空這張"}</option>` + MCARDS.filter(c => c.deck === deck).map(c => `<option value="${c.id}"${c.id === sel ? " selected" : ""}>${esc(cardName(c))}</option>`).join("");
+  const cardOpts = (deck, sel) => `<option value=""${sel == null ? " selected" : ""}>${sel == null ? PL("還沒抽・可指定", "Not drawn · or pick") : PL("清空這張", "Clear this card")}</option>` + MCARDS.filter(c => c.deck === deck).map(c => `<option value="${c.id}"${c.id === sel ? " selected" : ""}>${esc(cardName(c))}</option>`).join("");
   const photo = (o, which, label) => `<div class="pub-photo"><span>${label}</span>
       ${o.photo[which] ? `<img src="${o.photo[which].url}" alt="">` : ""}
-      <div class="pub-btns"><label class="pub-mini">${o.photo[which] ? "換照片" : "選擇照片"}<input type="file" accept="image/*" class="pub-file" data-act="photo" data-which="${which}"></label>
-      ${o.photo[which] ? `<button type="button" class="pub-mini" data-act="unphoto" data-which="${which}">拿掉</button>` : ""}</div></div>`;
+      <div class="pub-btns"><label class="pub-mini">${o.photo[which] ? PL("換照片", "Change photo") : PL("選擇照片", "Choose photo")}<input type="file" accept="image/*" class="pub-file" data-act="photo" data-which="${which}"></label>
+      ${o.photo[which] ? `<button type="button" class="pub-mini" data-act="unphoto" data-which="${which}">${PL("拿掉", "Remove")}</button>` : ""}</div></div>`;
   box.innerHTML = `
     <div class="pub-box">
-      <h2 class="pub-h">大眾占卜圖卡</h2>
-      <p class="pl">圖卡風格</p>
-      <div class="pub-btns">${Object.entries(PUB_THEMES).map(([k, v]) => `<button type="button" class="pub-mini${PUB.theme === k ? " solid" : ""}" data-act="theme" data-theme="${k}" aria-pressed="${PUB.theme === k}">${v.name}</button>`).join("")}</div>
-      <p class="pub-tip">每組可以放 1～4 張牌。每張先選牌組，再按「抽牌」；不喜歡可以重抽，或在第二個選單直接指定。做好後在最下面存下三張圖。</p>
-      <label class="pl" for="pubQ">題目</label><input type="text" id="pubQ" data-f="q" maxlength="40" value="${esc(PUB.q)}" placeholder="例如：最近有人，在默默關心你嗎？">
-      <label class="pl" for="pubSub">題目下方小字（第 1 張圖）</label><input type="text" id="pubSub" data-f="sub" maxlength="30" value="${esc(PUB.sub)}">
+      <h2 class="pub-h">${PL("大眾占卜圖卡", "Public Reading Cards")}</h2>
+      <p class="pl">${PL("圖卡風格", "Card style")}</p>
+      <div class="pub-btns">${Object.entries(PUB_THEMES).map(([k, v]) => `<button type="button" class="pub-mini${PUB.theme === k ? " solid" : ""}" data-act="theme" data-theme="${k}" aria-pressed="${PUB.theme === k}">${PL(v.name, v.en)}</button>`).join("")}</div>
+      <p class="pub-tip">${PL("每組可以放 1～4 張牌。每張先選牌組，再按「抽牌」；不喜歡可以重抽，或在第二個選單直接指定。做好後在最下面存下三張圖。", "Each option holds 1–4 cards. For each card, choose a deck, then tap “Draw”. Redraw if you don’t like it, or pick a card in the second menu. When you’re done, save the three images at the bottom.")}</p>
+      <label class="pl" for="pubQ">${PL("題目", "Question")}</label><input type="text" id="pubQ" data-f="q" maxlength="40" value="${esc(PUB.q)}" placeholder="${PL("例如：最近有人，在默默關心你嗎？", "e.g. Is someone quietly caring about you?")}">
+      <label class="pl" for="pubSub">${PL("題目下方小字（第 1 張圖）", "Small text under the question (image 1)")}</label><input type="text" id="pubSub" data-f="sub" maxlength="30" value="${esc(PUB.sub)}">
     </div>
     ${PUB.opts.map((o, i) => `<div class="pub-box" data-opt="${i}">
-      <div class="pub-opt-head"><span class="pub-letter">${PUB_L[i]}</span><strong>選項 ${PUB_L[i]}</strong>
-        <button type="button" class="pub-mini" data-act="rerollAll">${pubDrawn(o).length ? "這組全部重抽" : "這組全部抽牌"}</button></div>
+      <div class="pub-opt-head"><span class="pub-letter">${PUB_L[i]}</span><strong>${PL("選項", "Option")} ${PUB_L[i]}</strong>
+        <button type="button" class="pub-mini" data-act="rerollAll">${pubDrawn(o).length ? PL("這組全部重抽", "Redraw all") : PL("這組全部抽牌", "Draw all")}</button></div>
       <div class="pub-slots">${o.slots.map((s, j) => { const c = s.id != null ? MCARDS[s.id] : null; return `<div class="pub-slot" data-slot="${j}">
           <div class="pub-thumb" style="--card-ar:${KINDS[s.deck].ar}">${c ? cardFace(c) : `<span class="pub-empty">${j + 1}</span>`}</div>
           <div class="pub-sels">
-            <select data-act="deck" aria-label="第 ${j + 1} 張的牌組">${deckOpts(s.deck)}</select>
-            <select data-act="card" aria-label="第 ${j + 1} 張指定牌">${cardOpts(s.deck, s.id)}</select>
+            <select data-act="deck" aria-label="${PL(`第 ${j + 1} 張的牌組`, `Deck for card ${j + 1}`)}">${deckOpts(s.deck)}</select>
+            <select data-act="card" aria-label="${PL(`第 ${j + 1} 張指定牌`, `Card ${j + 1}`)}">${cardOpts(s.deck, s.id)}</select>
           </div>
-          <div class="pub-btns col"><button type="button" class="pub-mini${c ? "" : " solid"}" data-act="reroll">${c ? "重抽" : "抽牌"}</button>
-            ${o.slots.length > 1 ? `<button type="button" class="pub-mini" data-act="del" aria-label="拿掉第 ${j + 1} 張">拿掉</button>` : ""}</div>
+          <div class="pub-btns col"><button type="button" class="pub-mini${c ? "" : " solid"}" data-act="reroll">${c ? PL("重抽", "Redraw") : PL("抽牌", "Draw")}</button>
+            ${o.slots.length > 1 ? `<button type="button" class="pub-mini" data-act="del" aria-label="${PL(`拿掉第 ${j + 1} 張`, `Remove card ${j + 1}`)}">${PL("拿掉", "Remove")}</button>` : ""}</div>
         </div>`; }).join("")}</div>
-      ${o.slots.length < 4 ? `<button type="button" class="pub-mini pub-add" data-act="add">＋ 加一張牌</button>` : ""}
-      <p class="pl">自己拍的照片（可以不放；放了就用照片取代牌圖）</p>
-      <div class="pub-photos">${photo(o, "cover", "第 1 張：蓋牌照")}${photo(o, "reveal", "第 2 張：翻牌照")}</div>
-      <label class="pl" for="pubKw${i}">關鍵詞（第 3 張圖）</label><input type="text" id="pubKw${i}" data-f="kw" maxlength="12" value="${esc(o.kw)}" placeholder="例如：默默守護">
-      <label class="pl" for="pubTx${i}">解讀重點（第 3 張圖，建議 2～3 行）</label><textarea id="pubTx${i}" data-f="text" rows="3">${esc(o.text)}</textarea>
+      ${o.slots.length < 4 ? `<button type="button" class="pub-mini pub-add" data-act="add">${PL("＋ 加一張牌", "+ Add a card")}</button>` : ""}
+      <p class="pl">${PL("自己拍的照片（可以不放；放了就用照片取代牌圖）", "Your own photos (optional; a photo replaces the card images)")}</p>
+      <div class="pub-photos">${photo(o, "cover", PL("第 1 張：蓋牌照", "Image 1: face-down"))}${photo(o, "reveal", PL("第 2 張：翻牌照", "Image 2: revealed"))}</div>
+      <label class="pl" for="pubKw${i}">${PL("關鍵詞（第 3 張圖）", "Keyword (image 3)")}</label><input type="text" id="pubKw${i}" data-f="kw" maxlength="12" value="${esc(o.kw)}" placeholder="${PL("例如：默默守護", "e.g. Quiet protection")}">
+      <label class="pl" for="pubTx${i}">${PL("解讀重點（第 3 張圖，建議 2～3 行）", "Reading (image 3, 2–3 lines works best)")}</label><textarea id="pubTx${i}" data-f="text" rows="3">${esc(o.text)}</textarea>
       <p class="pub-lines" data-lines></p>
     </div>`).join("")}
     <div class="pub-box">
-      <label class="pl" for="pubAsk">第 3 張圖底部：互動提問</label><input type="text" id="pubAsk" data-f="ask" maxlength="24" value="${esc(PUB.ask)}">
-      <label class="pl" for="pubNote">第 3 張圖底部：小字</label><input type="text" id="pubNote" data-f="note" maxlength="16" value="${esc(PUB.note)}">
+      <label class="pl" for="pubAsk">${PL("第 3 張圖底部：互動提問", "Image 3 footer: question for followers")}</label><input type="text" id="pubAsk" data-f="ask" maxlength="24" value="${esc(PUB.ask)}">
+      <label class="pl" for="pubNote">${PL("第 3 張圖底部：小字", "Image 3 footer: small print")}</label><input type="text" id="pubNote" data-f="note" maxlength="16" value="${esc(PUB.note)}">
     </div>
     <div class="pub-box">
-      <h2 class="pub-h">預覽</h2>
-      <div class="pub-prev">${[0, 1, 2].map(i => `<figure><img id="pubImg${i}" alt="第 ${i + 1} 張圖"><figcaption>${["1 題目", "2 翻牌", "3 解讀"][i]}</figcaption></figure>`).join("")}</div>
-      <div class="btn-row" style="justify-content:center"><button type="button" class="btn t-btn solid" data-act="save">${ICON_IMG}<span>存下三張圖</span></button></div>
-      <p class="pub-tip" style="text-align:center">手機也可以長按上面的圖，一張一張存到相簿。</p>
+      <h2 class="pub-h">${PL("預覽", "Preview")}</h2>
+      <div class="pub-prev">${[0, 1, 2].map(i => `<figure><img id="pubImg${i}" alt="${PL(`第 ${i + 1} 張圖`, `Image ${i + 1}`)}"><figcaption>${PL(["1 題目", "2 翻牌", "3 解讀"], ["1 Question", "2 Reveal", "3 Reading"])[i]}</figcaption></figure>`).join("")}</div>
+      <div class="btn-row" style="justify-content:center"><button type="button" class="btn t-btn solid" data-act="save">${ICON_IMG}<span>${PL("存下三張圖", "Save 3 images")}</span></button></div>
+      <p class="pub-tip" style="text-align:center">${PL("手機也可以長按上面的圖，一張一張存到相簿。", "On a phone you can also long-press each image to save it to your photos.")}</p>
     </div>
     <div class="pub-box">
-      <h2 class="pub-h">貼文說明欄（完整解讀）</h2>
-      <p class="pub-tip">可以先產生草稿（會列出每組抽到的牌），再自己修改。</p>
+      <h2 class="pub-h">${PL("貼文說明欄（完整解讀）", "Post caption (full reading)")}</h2>
+      <p class="pub-tip">${PL("可以先產生草稿（會列出每組抽到的牌），再自己修改。", "Make a draft first (it lists the cards in each option), then edit it.")}</p>
       <textarea id="pubCap" data-f="cap" rows="12">${esc(PUB.cap)}</textarea>
-      <div class="pub-btns"><button type="button" class="pub-mini" data-act="capDraft">用上面的內容產生草稿</button><button type="button" class="btn t-btn solid" data-act="capCopy">複製說明文字</button></div>
+      <div class="pub-btns"><button type="button" class="pub-mini" data-act="capDraft">${PL("用上面的內容產生草稿", "Draft from the content above")}</button><button type="button" class="btn t-btn solid" data-act="capCopy">${PL("複製說明文字", "Copy caption")}</button></div>
     </div>`;
   pubLines(); pubSchedule();
 }
@@ -2958,7 +2960,7 @@ function pubLines() {
   pubMeasure.font = `400 30px ${PF.sans}`;
   $("#pub").querySelectorAll("[data-opt]").forEach(el => {
     const n = pubWrap(pubMeasure, PUB.opts[+el.dataset.opt].text, 796).length, p = el.querySelector("[data-lines]");
-    p.textContent = n ? `圖上約 ${n} 行${n > 3 ? "，超過 3 行，圖上可能會擠，建議縮短" : ""}` : "";
+    p.textContent = n ? PL(`圖上約 ${n} 行${n > 3 ? "，超過 3 行，圖上可能會擠，建議縮短" : ""}`, `About ${n} line${n > 1 ? "s" : ""} on the image${n > 3 ? " — over 3 lines may look crowded; try shortening it" : ""}`) : "";
     p.classList.toggle("warn", n > 3);
   });
 }
@@ -3013,19 +3015,19 @@ async function pubCards(ctx, o, faceUp, X, Y, W, H) {
 }
 // looks for the carousel; "sketch" ones get wobbly hand-drawn lines, doodles and washi tape
 const PUB_THEMES = {
-  garden: { name: "奶茶花園", sketch: true, bg: ["#FFF3EA", "#F8DDCD"], doodle: ["#F08A73", "#F2B84B", "#7CC4B5", "#B39DDB"],
+  garden: { name: "奶茶花園", en: "Milk Tea Garden", sketch: true, bg: ["#FFF3EA", "#F8DDCD"], doodle: ["#F08A73", "#F2B84B", "#7CC4B5", "#B39DDB"],
     cell: "#FFFDF9", frame: "#C07A5E", inner: ["#F6E4D5", "#EDCDB6"], banner: "#FFFDF8", line: "#C07A5E", title: "#8A4A33", sub: "#A27461",
     eyebrow: "#D9775E", head: "#6B3E2E", bar: "#FFFDF9", ink: "#4E3A31", foot: "#6B3E2E", footDim: "#A88B7D",
     badges: ["#EE7D67", "#3FA596", "#E3A12E", "#9179D0"], tape: ["rgba(242,184,75,.72)", "rgba(124,196,181,.72)"], shadow: "rgba(120,70,40,.28)" },
-  sky: { name: "粉彩星空", sketch: true, bg: ["#3A4380", "#6E5CA3"], doodle: ["#FFF3B0", "#FFFFFF", "#FFC2D1", "#B9E6FF"],
+  sky: { name: "粉彩星空", en: "Pastel Night", sketch: true, bg: ["#3A4380", "#6E5CA3"], doodle: ["#FFF3B0", "#FFFFFF", "#FFC2D1", "#B9E6FF"],
     cell: "#FDF9FF", frame: "#8E7CC3", inner: ["#D9D1F4", "#B8C6EE"], banner: "#FFFDF5", line: "#8E7CC3", title: "#56459A", sub: "#8576B5",
     eyebrow: "#FFD36E", head: "#FFFFFF", bar: "#FFFDF8", ink: "#3F3560", foot: "#FFFFFF", footDim: "#DCD3F5",
     badges: ["#FF6F8E", "#2FB3A3", "#F0A92E", "#8A73EC"], tape: ["rgba(255,194,209,.82)", "rgba(255,243,176,.82)"], shadow: "rgba(30,20,70,.35)" },
-  forest: { name: "晨光森林", sketch: true, bg: ["#F4F7EA", "#DFE9C8"], doodle: ["#8DB36B", "#F2B134", "#E8957A", "#7FB7D6"],
+  forest: { name: "晨光森林", en: "Morning Forest", sketch: true, bg: ["#F4F7EA", "#DFE9C8"], doodle: ["#8DB36B", "#F2B134", "#E8957A", "#7FB7D6"],
     cell: "#FFFEF8", frame: "#7A9A5E", inner: ["#E6EED3", "#D2E1B5"], banner: "#FFFEF8", line: "#7A9A5E", title: "#4E6B37", sub: "#7D8F6A",
     eyebrow: "#C9813E", head: "#3F5A2C", bar: "#FFFEF8", ink: "#3B4630", foot: "#3F5A2C", footDim: "#8A9A78",
     badges: ["#E2725B", "#3E93B8", "#E0A021", "#8C6BC4"], tape: ["rgba(242,177,52,.7)", "rgba(232,149,122,.7)"], shadow: "rgba(60,80,30,.28)" },
-  wood: { name: "經典木桌", sketch: false, bg: ["#3A271D", "#3A271D"], doodle: null,
+  wood: { name: "經典木桌", en: "Classic Wood", sketch: false, bg: ["#3A271D", "#3A271D"], doodle: null,
     cell: "#F6EFE2", frame: null, inner: ["#94613F", "#6F4630"], banner: "#F6EFE2", line: null, title: "#7A3B1E", sub: "#5B4A40",
     eyebrow: "#E2B27A", head: "#F6EFE2", bar: "#F6EFE2", ink: "#3F322B", foot: "#F6EFE2", footDim: "#D9C7AE",
     badges: ["#C8372D", "#C8372D", "#C8372D", "#C8372D"], tape: null, shadow: "rgba(0,0,0,.4)" }
@@ -3247,7 +3249,7 @@ $("#pub").addEventListener("change", async e => {
     const file = e.target.files && e.target.files[0]; if (!file) return;
     const which = e.target.dataset.which, url = URL.createObjectURL(file);
     try { const img = await loadImg(url); if (o.photo[which]) URL.revokeObjectURL(o.photo[which].url); o.photo[which] = { url, img }; }
-    catch (err) { URL.revokeObjectURL(url); toast("這張照片讀不進來，換一張試試"); return; }
+    catch (err) { URL.revokeObjectURL(url); toast(PL("這張照片讀不進來，換一張試試", "Couldn’t read this photo — try another one")); return; }
   } else return;
   pubRender();
 });
@@ -3266,15 +3268,15 @@ $("#pub").addEventListener("click", async e => {
     if (PUB.blobs.length !== 3) { toast(t("toast.shotFail")); return; }
     const d = new Date(), p = v => String(v).padStart(2, "0"), stamp = `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`;
     for (let i = 0; i < 3; i++) { if (!await pubSaveBlob(PUB.blobs[i], `大眾占卜-${stamp}-${i + 1}.png`)) return; await new Promise(r => setTimeout(r, 450)); }
-    toast("已存下三張圖"); return;
+    toast(PL("已存下三張圖", "Saved 3 images")); return;
   } else if (act === "capDraft") {
-    if (PUB.cap.trim() && await ask("要用新的草稿取代現在的說明文字嗎？", [{ label: t("btn.cancel"), value: "no" }, { label: "取代", value: "yes", solid: true }], "t") !== "yes") return;
+    if (PUB.cap.trim() && await ask(PL("要用新的草稿取代現在的說明文字嗎？", "Replace the current caption with a new draft?"), [{ label: t("btn.cancel"), value: "no" }, { label: PL("取代", "Replace"), value: "yes", solid: true }], "t") !== "yes") return;
     PUB.cap = pubCaption(); $("#pubCap").value = PUB.cap; return;
   } else if (act === "capCopy") {
     const ta = $("#pubCap");
     try { await navigator.clipboard.writeText(ta.value); }
-    catch (err) { ta.select(); try { document.execCommand("copy"); } catch (e2) { toast("沒辦法自動複製，請長按文字自己複製"); return; } }
-    toast("已複製說明文字"); return;
+    catch (err) { ta.select(); try { document.execCommand("copy"); } catch (e2) { toast(PL("沒辦法自動複製，請長按文字自己複製", "Couldn’t copy automatically — long-press the text to copy it")); return; } }
+    toast(PL("已複製說明文字", "Caption copied")); return;
   } else return;
   pubRender();
 });
@@ -3787,6 +3789,7 @@ function applyLanguage() {
   else clearResult();
   setJar(GYS.jar); gyRenderStage(); gyRenderResult();
   renderVisits();
+  if (PUB.on) pubRender();
 }
 
 /* ================= visitor counter (GoatCounter) =================
