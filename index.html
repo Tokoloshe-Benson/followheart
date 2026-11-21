@@ -642,6 +642,9 @@ details.panel[open] > summary::after { content: "－"; }
 .aspects dd { margin: 0; font-size: .9rem; line-height: 1.6; color: var(--parch); }
 .deckseg { grid-template-columns: repeat(2, 1fr); }
 .deckseg button { font-size: .95rem; }
+#tarotEyebrow { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.deckseg .priv-in { animation: privIn .5s ease both; }
+@keyframes privIn { from { opacity: 0; transform: translateY(-4px); } }
 .lot-big {
   position: relative; width: 100%; min-height: 240px; box-sizing: border-box; margin-top: 34px; /* clear the close button */
   display: grid; place-items: center; padding: 34px 26px; border-radius: 16px;
@@ -1211,6 +1214,14 @@ const I18N = {
     "btn.switchDeck": "切換牌組",
     "leno.eyebrow": "Lenormand · 36 cards",
     "leno.title": "雷諾曼占卜",
+    "deck.osho": "奧修禪卡",
+    "deck.thoth": "托特塔羅",
+    "osho.eyebrow": "Osho Zen · 79 cards",
+    "osho.title": "奧修禪卡",
+    "thoth.eyebrow": "Thoth · 78 cards",
+    "thoth.title": "托特塔羅",
+    "priv.tip": "點上面的牌，可以放大看牌面和牌義",
+    "priv.note": "牌義是簡短整理，最重要的是你看到牌面時心裡浮現的感受。",
     "leno.note": "雷諾曼不分正逆位。相鄰的牌可以連成一句話來讀。",
     "leno.sub": "雷諾曼 · 第 {n} 張 · {pc}",
     "leno.pc": "{suit} {rank}",
@@ -1666,6 +1677,10 @@ const I18N = {
     "btn.switchDeck": "Switch deck",
     "leno.eyebrow": "Lenormand · 36 cards",
     "leno.title": "Lenormand Reading",
+    "deck.osho": "Osho Zen",
+    "deck.thoth": "Thoth",
+    "osho.title": "Osho Zen Tarot",
+    "thoth.title": "Thoth Tarot",
     "leno.note": "Lenormand uses no reversals. Neighboring cards can be read together as one sentence.",
     "leno.sub": "Lenormand · Card {n} · {pc}",
     "leno.pc": "{rank} of {suit}",
@@ -2129,19 +2144,19 @@ const LCARDS = LENO_PC.map((pc, i) => ({ id: i, deck: "leno", n: i + 1, pc }));
 
 const lenoRow = c => t("leno")[c.n - 1];
 const playingCard = c => t("leno.pc", { suit: t("pcSuits")[c.pc[1]], rank: t("pcRanks")[c.pc[0]] || c.pc[0] });
-const cardName = c => c.deck === "leno" ? lenoRow(c)[0] : c.major ? t("major")[c.n][0] : t("card.minorName", { suit: t("suits")[c.suit][0], rank: t("ranks")[c.rank] });
-const cardKw = c => (c.deck === "leno" ? lenoRow(c)[1] : c.major ? t("major")[c.n][1] : t("minor")[c.suit][c.rank][0]).split(t("kwSep")).map(s => s.trim()).filter(Boolean);
-const cardText = c => c.deck === "leno" ? lenoRow(c)[2] : c.major ? t("major")[c.n][2] : t("minor")[c.suit][c.rank][1];
+const cardName = c => c.p ? (lang === "en" ? c.p.en : c.p.zh) : c.deck === "leno" ? lenoRow(c)[0] : c.major ? t("major")[c.n][0] : t("card.minorName", { suit: t("suits")[c.suit][0], rank: t("ranks")[c.rank] });
+const cardKw = c => c.p ? c.p.kw : (c.deck === "leno" ? lenoRow(c)[1] : c.major ? t("major")[c.n][1] : t("minor")[c.suit][c.rank][0]).split(t("kwSep")).map(s => s.trim()).filter(Boolean);
+const cardText = c => c.p ? c.p.text : c.deck === "leno" ? lenoRow(c)[2] : c.major ? t("major")[c.n][2] : t("minor")[c.suit][c.rank][1];
 // work, love, study, self
-const cardAspects = c => c.deck === "leno" ? lenoRow(c).slice(3, 7) : c.major ? t("majorAsp")[c.n] : t("minorAsp")[c.suit][c.rank];
-const cardSub = c => c.deck === "leno" ? t("leno.sub", { n: c.n, pc: playingCard(c) })
+const cardAspects = c => c.p ? [] : c.deck === "leno" ? lenoRow(c).slice(3, 7) : c.major ? t("majorAsp")[c.n] : t("minorAsp")[c.suit][c.rank];
+const cardSub = c => c.p ? c.p.sub : c.deck === "leno" ? t("leno.sub", { n: c.n, pc: playingCard(c) })
   : c.major ? t("card.subMajor", { n: c.n }) : t("card.subMinor", { suit: t("suits")[c.suit][0], el: t("suits")[c.suit][1] });
 
 /* ================= card art ================= */
 /* Rider–Waite–Smith 1909 (public domain) scans, published alongside the page in cards/ */
 /* Lenormand faces were drawn by the studio (Gemini) and published alongside in cards/lenormand-NN.jpg */
 const pad2 = n => String(n).padStart(2, "0");
-const cardSrc = c => "cards/" + (c.deck === "leno" ? "lenormand-" + pad2(c.n) : c.major ? "major-" + pad2(c.n) : c.suit + "-" + pad2(c.rank + 1)) + ".jpg";
+const cardSrc = c => c.p ? c.p.img : "cards/" + (c.deck === "leno" ? "lenormand-" + pad2(c.n) : c.major ? "major-" + pad2(c.n) : c.suit + "-" + pad2(c.rank + 1)) + ".jpg";
 // Lenormand scans have white paper corners; a per-card alpha mask (…-mask.png) trims them so the torn edge shows
 const cardFace = c => c.deck === "leno"
   ? `<div class="cardwrap"><img class="cardimg masked" src="${cardSrc(c)}" alt="${esc(cardName(c))}" draggable="false" style="--mask:url(cards/lenormand-${pad2(c.n)}-mask.png)"></div>`
@@ -2166,11 +2181,42 @@ const BACK = `<svg class="cardsvg" viewBox="0 0 140 240" aria-hidden="true">
   <path d="M70 40l2 6 6 2-6 2-2 6-2-6-6-2 6-2z M70 184l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#c9a961"/>
 </svg>`;
 
+/* ================= private decks (hidden until the eyebrow is tapped 5 times) ================= */
+const PRIV_RAW = {"osho": ["The Fool|愚者|信任、全然投入、活在當下|放下過去的經驗與算計，帶著信任跨出這一步，生命會接住你。","Existence|存在|歸屬、被接納、與萬物同在|你不是偶然來到這裡，你本來就屬於這個世界，安心地存在就好。","Inner Voice|內在的聲音|直覺、真實、內在的知曉|安靜下來聆聽心裡的聲音，答案早就在你裡面。","Creativity|創造力|靈感、表達、讓能量流過|讓自己成為通道，不必刻意追求完美，享受創造本身。","The Rebel|反叛者|獨立、為自己負責、打破框架|有勇氣走自己的路，不再為了別人的期待而活。","No-Thingness|空無|空、等待、無限的可能|此刻什麼都還沒有，這份空白正是新事物誕生的地方。","The Lovers|愛人|愛、連結、靈魂的相遇|愛從自己的豐盛流出，在關係中彼此成長，而不是彼此依賴。","Awareness|覺知|清明、觀照、看見真相|退後一步看著發生的一切，不急著反應，你會看得更清楚。","Courage|勇氣|突破困境、堅韌、迎向挑戰|困難正是讓你成長的養分，就像小花從石縫中鑽出來。","Aloneness|單獨|獨處、完整、向內探索|單獨不是孤單，而是和自己好好在一起的時刻。","Change|改變|循環、順勢、無常|生命的輪子一直在轉，接受變化，與它一起流動。","Breakthrough|突破|釋放、打破限制、能量爆發|舊的束縛正在瓦解，讓壓抑已久的力量衝出來。","New Vision|新的洞見|新視野、提升、成長|你正站上更高的位置，用全新的眼光看待生命。","Transformation|蛻變|放下、轉化、臣服|讓舊的部分自然死去，新的你正在形成。","Integration|整合|合一、平衡、對立的融合|內在相反的力量正在和解，你變得更完整。","Conditioning|制約|舊習慣、別人的眼光、模仿|看看你戴著哪張別人給的面具，你可以選擇脫下它。","Thunderbolt|雷電|劇變、崩解、覺醒|突如其來的衝擊打破假象，留下來的才是真實的。","Silence|寧靜|靜心、深沉、內在的空間|在寂靜裡，你會聽見比言語更深的東西。","Past Lives|前世|舊模式、業力、釋放過去|有些反覆出現的課題來自很深的過去，看見它就能放下它。","Innocence|天真|純真、好奇、像孩子一樣|用第一次看見世界的眼光生活，簡單就是智慧。","Beyond Illusion|超越幻象|看穿、覺醒、真實|揭開表面的帷幕，看見事情真正的樣子。","Completion|完成|結束、圓滿、拼上最後一塊|一個階段即將完成，好好收尾，再迎接新的開始。","The Master|大師|開悟、內在的導師、回到中心|你內在本來就有智慧與光，回到自己的中心就好。","The Source|源頭|生命力、能量的源頭、啟動|你與生命的源頭相連，充沛的能量正在湧出。","Possibilities|可能性|選擇、開闊、無限潛能|眼前有許多條路，別太早把自己限制在一種可能。","Experiencing|經驗|體驗、投入、感受生命|親身去經歷，比在腦袋裡想像更能讓你明白。","Participation|參與|融入、合作、一起跳舞|加入群體、和大家一起，你會感受到歸屬與喜悅。","Totality|全然|全心投入、專注、忘我|做一件事就百分之百地做，全然本身就是喜悅。","Success|成功|成就、被看見、自信|你的努力有了成果，好好享受它，但不必緊抓住它。","Stress|壓力|緊繃、過勞、需要放鬆|你把自己逼得太緊了，停下來喘口氣，事情不會因此變糟。","Traveling|旅行|移動、旅程、享受過程|重點不是終點，而是沿路的風景，享受每一步。","Exhaustion|精疲力竭|耗盡、機械化、身心疲累|你被責任困住、累壞了，是時候放下一些，好好照顧自己。","Suppression|壓抑|壓下情緒、悶住、自我設限|被壓住的能量需要出口，允許自己表達真實的感受。","Playfulness|遊戲人間|玩心、輕鬆、享受當下|別把人生看得太嚴肅，帶點玩心，事情會更順。","Intensity|強烈|熱情、衝勁、快速前進|強大的能量推著你往前，把它用在真正重要的事上。","Sharing|分享|給予、豐盛、慷慨|你擁有的已經足夠多，分享出去，它會變得更多。","The Creator|創造者|創造、主導、把願景落實|你有能力把心中的願景變成現實，帶著覺知去創造。","Going with the Flow|隨順|順流、放鬆、不抗拒|不要逆流而上，放鬆下來，讓生命之河帶著你走。","Friendliness|友善|友誼、溫暖、互相分享|敞開心，用真誠的友善與人相處，連結會自然發生。","Celebration|慶祝|喜悅、歡聚、感恩|有值得開心的事，和身邊的人一起慶祝吧。","Turning In|向內看|內省、回到自己、安靜|在外面找不到答案時，轉向內在，你會找到平靜。","Clinging to the Past|執著於過去|放不下、回憶、停滯|過去已經過去了，緊抓著它，只會錯過眼前的生命。","The Dream|夢想|幻想、期待、理想化|小心把希望寄託在不真實的幻想上，真正的愛從愛自己開始。","Projections|投射|誤解、把情緒丟給別人、看不清|你看到的別人，可能是自己內心的投影，先回頭看看自己。","Letting Go|放下|釋放、臣服、自然落下|像露珠從葉子上滑落，讓該離開的自然離開。","Laziness|懶惰|停滯、拖延、安逸|舒服的停留太久了，醒過來吧，生命在等你行動。","Harmony|和諧|平衡、內外一致、身心合一|你的內在和外在正在調和，感受這份安穩的和諧。","Understanding|了解|看清、解脫、明白|你終於明白困住自己的是什麼，籠子的門其實一直開著。","Trust|信任|縱身一躍、放手、相信|放下控制，信任生命，勇敢跨出那一步。","Receptivity|接納|敞開、接收、柔軟|像大地接受雨水一樣，敞開自己去接受愛與支持。","Healing|療癒|修復、照顧、溫柔|療癒正在發生，溫柔地對待自己和身邊的人。","Consciousness|意識|清醒、覺察、超越頭腦|從頭腦的雲層中走出來，用清明的覺知看待一切。","Schizophrenia|精神分裂|猶豫不決、拉扯、兩難|頭腦在兩個選擇之間打轉，聽聽身體和心的感覺。","Ice-olation|冰封|封閉、孤立、凍結的心|你把自己冰封起來保護自己，試著讓一點溫暖進來。","Postponement|延遲|拖延、等待、錯過時機|一直說「明天再說」，卻讓今天溜走了，現在就開始吧。","Comparison|比較|比較、自卑或優越、不安|每個人都獨一無二，不必拿自己和別人比。","The Burden|負擔|重擔、責任、承擔太多|你背著不屬於自己的重量，可以放下一些了。","Politics|政治|心機、表裡不一、操弄|留意表面友善背後的算計，也誠實面對自己的動機。","Guilt|罪惡感|自責、內疚、自我懲罰|停止責怪自己，你已經盡力了，原諒自己吧。","Sorrow|悲傷|悲傷、失落、深刻的痛|允許自己難過，悲傷走過之後，會帶來更深的理解。","Rebirth|重生|新生、走出低谷、更新|黑暗已經過去，你正從灰燼中重新站起來。","Mind|頭腦|想太多、分析、資訊過載|頭腦塞滿了念頭，停下來，讓心說話。","Fighting|戰鬥|衝突、對抗、攻擊|你在和誰（或和自己）打仗？看看真正需要的是什麼。","Morality|道德|規矩、批判、僵化|別被「應該」綁住，真正的善良來自內心，而不是規條。","Control|控制|掌控、僵硬、怕失去|越想控制越緊繃，試著鬆手，事情反而會更順。","Maturity|成熟|成熟、內在穩定、結出果實|你已經成長許多，從內在長出穩定的力量。","Moment to Moment|片刻接著片刻|當下、一步一步、專注|不必擔心整條路，只要走好眼前這一步。","Guidance|指引|引導、內在的方向、跟隨|指引正在出現，相信那份帶領你的感覺。","The Miser|吝嗇鬼|緊抓、匱乏感、封閉|怕失去而緊抓不放，反而讓自己更貧乏，試著打開手。","The Outsider|局外人|被排除、隔閡、渴望歸屬|你覺得自己被關在門外，其實門一直開著，要不要進去由你決定。","Compromise|妥協|委屈求全、讓步、失去自己|小心為了表面的和平，放棄真正重要的東西。","Patience|耐心|等待、孕育、時機未到|種子需要時間長大，耐心等待，時候到了自然會開花。","Ordinariness|平凡|簡單、踏實、日常的美|平凡的日子裡，藏著最真實的幸福。","Ripeness|豐收|成熟、收穫、時機到了|果實已經成熟，是時候放手讓它落下，享受收成。","We Are the World|我們就是世界|合一、群體、彼此相連|我們都是彼此的一部分，一起努力會更有力量。","Adventure|冒險|好奇、探索、新鮮的開始|帶著孩子般的好奇心，去探索未知的世界。","Slowing Down|慢下來|放慢、穩定、享受過程|不用急，慢慢來，你會走得更穩、看得更多。","Flowering|開花|綻放、美麗、分享自己|你正在盛開，讓自己的美好自然地被看見。","Abundance|富足|豐盛、富足、從容|你內外都很豐盛，帶著感恩享受，也與人分享。"],"thoth": ["The Fool|愚者|自由、新開始、無限可能|帶著一顆空白的心和勇氣出發，不怕未知，冒險本身就是禮物。","The Magus|魔法師|溝通、技巧、意志|你有足夠的能力和工具，清楚地表達，並且採取行動。","The Priestess|女祭司|直覺、純淨、內在智慧|靜下來，答案藏在你的直覺與內在的知曉裡。","The Empress|皇后|愛、豐盛、孕育|用愛與溫柔滋養身邊的人事物，美好會自然生長。","The Emperor|皇帝|權威、秩序、建立|用行動和紀律打下穩固的基礎，為自己做主。","The Hierophant|教皇|傳承、學習、信念|向有經驗的人學習，也找到自己內在的信念。","The Lovers|戀人|結合、選擇、對立的融合|把不同的部分結合起來，做出忠於自己的選擇。","The Chariot|戰車|前進、保護、堅定|帶著清楚的方向前進，守住你重視的東西。","Adjustment|調整|平衡、公正、因果|調整失衡的地方，誠實面對，事情會回到正軌。","The Hermit|隱士|獨處、智慧、內在之光|暫時退開人群，在安靜中找到自己的光。","Fortune|命運|轉變、機會、循環|局勢正在轉動，把握機會，順勢而為。","Lust|慾望|熱情、勇氣、生命力|擁抱你的熱情與力量，勇敢地享受生命。","The Hanged Man|吊人|臣服、犧牲、換個角度|暫停下來，放下堅持，從不同的角度看事情。","Death|死亡|結束、轉化、重生|舊的結束了，新的才能誕生，別害怕改變。","Art|藝術|融合、調和、創造|把看似相反的東西融合在一起，創造出新的可能。","The Devil|惡魔|慾望、物質、原始能量|看見讓你著迷或被綁住的東西，也可以把這股能量用在創造上。","The Tower|塔|崩解、突破、覺醒|舊的結構被打破，雖然震撼，卻帶來真正的自由。","The Star|星星|希望、靈感、療癒|相信你的夢想，宇宙正在給你指引與滋養。","The Moon|月亮|不安、幻覺、潛意識|前路不明時別慌，穿過恐懼與迷霧，黎明就會到來。","The Sun|太陽|喜悅、成功、自由|光明照耀，帶著自信與喜悅展現自己。","The Aeon|新紀元|新階段、覺醒、重新開始|一個全新的階段正在開啟，舊的評判已經過去。","The Universe|宇宙|完成、圓滿、整合|一個循環圓滿完成，你已經準備好進入下一個階段。","Ace of Wands|權杖王牌|能量、靈感、行動力|一股強大的動力出現，是開始新計畫的好時機。","Dominion|統治|掌控、意志、開拓|你有力量掌握局面，大膽地開拓新的領域。","Virtue|美德|正直、穩健的力量、起步順利|計畫有了好的開始，保持正直與熱情繼續前進。","Completion|完成|完成、穩定、成果|事情告一段落，享受階段性的成果與安定。","Strife|爭鬥|衝突、競爭、摩擦|有爭執或壓力出現，冷靜處理，別讓情緒失控。","Victory|勝利|勝利、成功、被肯定|努力得到回報，好好享受被肯定的時刻。","Valour|英勇|勇氣、堅持、以寡敵眾|情勢雖然不利，只要勇敢堅持，就有機會贏。","Swiftness|迅速|快速、消息、溝通|事情進展飛快，消息即將到來，把握時機行動。","Strength|力量|力量、韌性、恢復|你比想像中更有力量，穩住自己就能撐過去。","Oppression|壓迫|壓力、過度負荷、太強勢|力量用得太過了，放下不必要的負擔與控制。","Princess of Wands|權杖公主|熱情、大膽、新的火花|像一團剛點燃的火，勇敢表達你的熱情與想法。","Prince of Wands|權杖王子|衝勁、冒險、自信|充滿行動力往前衝，但也留意別太衝動。","Queen of Wands|權杖皇后|自信、溫暖、魅力|展現你的自信與魅力，用溫暖的熱情影響別人。","Knight of Wands|權杖騎士|行動、爆發力、開創|一股強大的能量衝刺而出，適合大膽開創。","Ace of Cups|聖杯王牌|愛、情感、滿溢|心被愛充滿，敞開去接受，也去給予。","Love|愛|戀愛、和諧、連結|兩顆心互相吸引，一段溫暖的關係正在發展。","Abundance|豐盛|豐收、喜悅、分享|情感與生活都很豐盛，和身邊的人一起分享。","Luxury|奢華|安逸、享受、停滯|生活很舒適，但小心太安逸而失去熱情。","Disappointment|失望|失落、期待落空、情緒低落|事情不如預期，允許自己難過，再重新出發。","Pleasure|歡愉|愉快、滿足、身心舒暢|享受生活中的小確幸，情感帶來愉悅。","Debauch|放縱|沉溺、過度、逃避|小心用享樂或依賴來逃避問題，回到真實的生活。","Indolence|怠惰|無力、倦怠、失去動力|能量正在流失，放下沒有意義的事，重新找回熱情。","Happiness|快樂|快樂、心願達成、滿足|幸福與滿足的時刻，願望可能就要實現。","Satiety|飽足|圓滿、完成、滿到極點|情感達到圓滿，好好珍惜，也準備迎接新的階段。","Princess of Cups|聖杯公主|溫柔、浪漫、直覺|用柔軟的心感受世界，相信你的直覺與想像。","Prince of Cups|聖杯王子|深情、內斂、熱情藏在心底|表面平靜，內在熱烈，試著真誠地表達你的感受。","Queen of Cups|聖杯皇后|包容、映照、同理|像一面平靜的湖，接納並理解別人的情緒。","Knight of Cups|聖杯騎士|奉獻、浪漫、追尋理想|帶著真心去追尋所愛，用熱情付出。","Ace of Swords|寶劍王牌|清晰、真相、決斷|頭腦變得清楚，看見真相並做出決定。","Peace|和平|和解、平衡、暫時的平靜|停止內在的拉扯，找到和平與平衡。","Sorrow|悲傷|心痛、悲傷、失落|傷痛需要被好好感受，哭出來才會慢慢癒合。","Truce|休戰|休息、暫停、妥協|先停下爭執，讓自己休息，恢復元氣。","Defeat|挫敗|失敗、挫折、自我懷疑|一時的失敗不代表全部，從中學習再站起來。","Science|科學|客觀、理性、找到方法|用理性和客觀的分析，找到解決問題的方法。","Futility|徒勞|白費力氣、猶豫、不切實際|別把力氣花在沒有用的地方，也別只是想太多卻不行動。","Interference|干擾|分心、阻礙、困惑|太多雜音讓你無法專注，先釐清最重要的事。","Cruelty|殘酷|焦慮、自我折磨、恐懼|頭腦裡的恐懼比現實更可怕，對自己溫柔一點。","Ruin|毀滅|崩潰、結束、谷底|最糟的已經發生，從谷底開始，只會往上走。","Princess of Swords|寶劍公主|機智、警覺、勇於面對|用清楚的頭腦面對衝突，勇敢說出真話。","Prince of Swords|寶劍王子|思考、點子、想太多|腦中有很多想法，選出一個專心去實現。","Queen of Swords|寶劍皇后|看穿、獨立、理智|用理性看穿假象，清楚地做出判斷。","Knight of Swords|寶劍騎士|果斷、專注、直擊目標|目標清楚就果斷行動，直接切入重點。","Ace of Disks|圓盤王牌|物質、機會、紮根|實際的機會出現，適合在現實中打好基礎。","Change|變化|變動、靈活、流動|生活在變動中，保持彈性就能維持平衡。","Works|工作|建設、合作、實作|一步一步把計畫落實，努力會累積成果。","Power|力量|穩固、保守、安全感|你建立了穩固的基礎，但小心變得過度保守。","Worry|憂慮|擔憂、匱乏、壓力|擔心只會讓你更累，專注在你能做的事上。","Success|成功|成功、平衡、回報|付出得到回報，事情進入順利的階段。","Failure|失敗|停滯、挫折、需要耐心|成果還沒出現，別灰心，檢討之後繼續耕耘。","Prudence|謹慎|細心、耐心、慢慢累積|腳踏實地、小心經營，慢慢會看見成果。","Gain|獲得|收穫、好運、增加|財富與機會增加，好運正在靠近。","Wealth|財富|富足、穩定、圓滿|物質與生活都很豐足，懂得運用，也懂得分享。","Princess of Disks|圓盤公主|孕育、踏實、新的可能|有新的種子正在醞釀，耐心地照顧它長大。","Prince of Disks|圓盤王子|穩定、勤奮、可靠|用穩定持續的努力，慢慢完成目標。","Queen of Disks|圓盤皇后|滋養、務實、豐收|用務實與溫暖照顧生活，豐收自然會來。","Knight of Disks|圓盤騎士|收成、實際、勤勞|辛勤工作迎來收成，專注在實際的成果上。"]};
+const PRIV_SUB = {
+  osho: i => {
+    if (i < 23) return "奧修禪卡 · 大牌 " + i;
+    const r = (i - 23) % 14 + 1;
+    return `奧修禪卡 · ${["火", "水", "雲", "彩虹"][Math.floor((i - 23) / 14)]} · ${r <= 10 ? r : ["侍者", "騎士", "皇后", "國王"][r - 11]}`;
+  },
+  thoth: i => {
+    if (i < 22) return "托特塔羅 · 大牌 " + i;
+    const r = (i - 22) % 14 + 1;
+    return `托特塔羅 · ${["權杖", "聖杯", "寶劍", "圓盤"][Math.floor((i - 22) / 14)]}${["", "王牌", "二", "三", "四", "五", "六", "七", "八", "九", "十", "公主", "王子", "皇后", "騎士"][r]}`;
+  }
+};
+const privCards = (deck, img) => PRIV_RAW[deck].map((s, i) => {
+  const [en, zh, kw, text] = s.split("|");
+  return { id: i, deck, p: { en, zh, kw: kw.split("、"), text, sub: PRIV_SUB[deck](i), img: `cards/${img}-${pad2(i)}.jpg` } };
+});
+const OCARDS = privCards("osho", "p1"), TCARDS = privCards("thoth", "p2");
+const BACK_OSHO = `<svg class="cardsvg" viewBox="0 0 1000 1480" aria-hidden="true">
+  <rect x="4" y="4" width="992" height="1472" rx="40" fill="#050505" stroke="#c9a961" stroke-width="6"/>
+  <rect x="64" y="56" width="872" height="1368" rx="6" fill="none" stroke="#e8e8e8" stroke-width="5"/>
+  <circle cx="500" cy="740" r="190" fill="none" stroke="#c9a961" stroke-width="5"/>
+  <circle cx="500" cy="740" r="150" fill="none" stroke="#c9a961" stroke-width="2.5" stroke-dasharray="8 14"/>
+  <path d="M500 600l26 114 114 26-114 26-26 114-26-114-114-26 114-26z" fill="#c9a961"/>
+  <circle cx="500" cy="740" r="14" fill="#050505"/>
+</svg>`;
+const BACK_THOTH = `<img class="cardimg" src="cards/p2-back.jpg" alt="" draggable="false">`;
+
 /* ================= tarot state ================= */
 // kind = which deck is in use; T.deck = the face-down pile of card ids for that deck
 const KINDS = {
   rws: { cards: CARDS, back: BACK, ar: 140 / 240, imgAr: 250 / 430, modes: ["single", "three", "free"], labels: "spread.", head: "tarot." },
-  leno: { cards: LCARDS, back: BACK_LENO, ar: 160 / 238, imgAr: 848 / 1264, modes: ["single", "three", "nine", "free"], labels: "lspread.", head: "leno." }
+  leno: { cards: LCARDS, back: BACK_LENO, ar: 160 / 238, imgAr: 848 / 1264, modes: ["single", "three", "nine", "free"], labels: "lspread.", head: "leno." },
+  osho: { cards: OCARDS, back: BACK_OSHO, ar: 1000 / 1480, imgAr: 1000 / 1480, modes: ["free"], labels: "spread.", head: "osho.", priv: true },
+  thoth: { cards: TCARDS, back: BACK_THOTH, ar: 1000 / 1480, imgAr: 1000 / 1480, modes: ["free"], labels: "spread.", head: "thoth.", priv: true }
 };
 const T = { kind: "rws", mode: "single", deck: [], picks: [], free: [], z: 1 };
 const K = () => KINDS[T.kind];
@@ -2191,6 +2237,7 @@ function renderTarotHead() {
   $("#tarotTitle").textContent = t(K().head + "title");
   const seg = $("#modeSeg");
   seg.style.setProperty("--seg-n", K().modes.length);
+  seg.hidden = K().modes.length < 2;
   seg.innerHTML = K().modes.map(m => `<button type="button" data-mode="${m}" aria-pressed="${m === T.mode}">${esc(t("seg." + m))}</button>`).join("");
 }
 
@@ -2282,7 +2329,7 @@ function renderReading() {
       <p class="r-foot"><span>${esc(t("reading.brand"))}</span><span>${esc(date)}</span></p>
     </div>
     <div class="btn-row r-actions"><button type="button" class="btn t-btn" data-shot>${ICON_IMG}<span>${esc(t("shot.btn"))}</span></button></div>
-    <p class="r-tip">${esc(t("reading.tip"))}</p>`;
+    <p class="r-tip">${esc(t(K().priv ? "priv.tip" : "reading.tip"))}</p>`;
   readingEl.style.animation = wasHidden ? "" : "none";
 }
 readingEl.addEventListener("click", e => { if (e.target.closest("[data-shot]")) openShot(); });
@@ -2513,9 +2560,9 @@ function showCard(card, pos) {
       <p class="m-sub">${esc(cardSub(card))}</p>
       <div class="kw">${cardKw(card).map(k => `<span>${esc(k)}</span>`).join("")}</div>
       <p class="m-text">${esc(cardText(card))}</p>
-      <dl class="aspects">${t("aspects").map((a, i) => `<div><dt>${esc(a)}</dt><dd>${esc(cardAspects(card)[i])}</dd></div>`).join("")}</dl>
+      ${card.p ? "" : `<dl class="aspects">${t("aspects").map((a, i) => `<div><dt>${esc(a)}</dt><dd>${esc(cardAspects(card)[i])}</dd></div>`).join("")}</dl>`}
       ${q ? `<p class="m-q">${esc(t("m.question", { q }))}</p>` : ""}
-      <p class="m-note">${esc(t(card.deck === "leno" ? "leno.note" : "m.note"))}</p>
+      <p class="m-note">${esc(t(card.p ? "priv.note" : card.deck === "leno" ? "leno.note" : "m.note"))}</p>
     </div>`, "t");
 }
 
@@ -2685,10 +2732,32 @@ $("#deckSeg").addEventListener("click", async e => {
   const b = e.target.closest("[data-kind]");
   if (!b || b.dataset.kind === T.kind) return;
   if (!await confirmClear("ask.switchDeck", "btn.switchDeck")) return;
-  T.kind = b.dataset.kind; store.set("tarot.kind", T.kind);
+  T.kind = b.dataset.kind; if (!K().priv) store.set("tarot.kind", T.kind);
+  if (!K().modes.includes(T.mode)) T.mode = K().priv ? "free" : store.get("tarot.mode", "single");
   if (!K().modes.includes(T.mode)) T.mode = "single";
   applyKind();
   newRound(true);
+});
+// private decks: tap the small "Tarot · 78 cards" line 5 times in a row to show them (again to hide); nothing is remembered
+let privTaps = 0, privLast = 0;
+$("#tarotEyebrow").addEventListener("click", async () => {
+  const now = Date.now();
+  privTaps = now - privLast < 900 ? privTaps + 1 : 1; privLast = now;
+  if (privTaps < 5) return;
+  privTaps = 0;
+  const seg = $("#deckSeg"), open = !!seg.querySelector("[data-priv]");
+  if (navigator.vibrate) try { navigator.vibrate(open ? [10, 60, 10] : 18); } catch (e) {}
+  if (!open) {
+    seg.insertAdjacentHTML("beforeend", ["osho", "thoth"].map(k => `<button type="button" class="priv-in" data-kind="${k}" data-priv aria-pressed="false" data-i18n="deck.${k}">${esc(t("deck." + k))}</button>`).join(""));
+    return;
+  }
+  if (K().priv) {
+    if (!await confirmClear("ask.switchDeck", "btn.switchDeck")) return;
+    T.kind = KINDS[store.get("tarot.kind", "rws")] ? store.get("tarot.kind", "rws") : "rws";
+    T.mode = store.get("tarot.mode", "single"); if (!K().modes.includes(T.mode)) T.mode = "single";
+    applyKind(); newRound(true);
+  }
+  seg.querySelectorAll("[data-priv]").forEach(b => b.remove());
 });
 $("#tarotReset").addEventListener("click", () => {
   $("#tq").value = "";
@@ -3265,7 +3334,7 @@ document.querySelectorAll("[data-copy-handle]").forEach(b => b.addEventListener(
 
 /* ================= boot ================= */
 const savedKind = store.get("tarot.kind", "rws"), savedMode = store.get("tarot.mode", "single");
-T.kind = KINDS[savedKind] ? savedKind : "rws";
+T.kind = KINDS[savedKind] && !KINDS[savedKind].priv ? savedKind : "rws";
 T.mode = K().modes.includes(savedMode) ? savedMode : "single";
 applyKind();
 T.deck = shuffle(K().cards.map(c => c.id));
