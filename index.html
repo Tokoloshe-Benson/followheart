@@ -195,7 +195,7 @@ button { cursor: pointer; }
 
 /* ---------- studio home ---------- */
 .home-hero { display: grid; justify-items: center; gap: 10px; text-align: center; padding-block: 10px 6px; }
-.home-mark { width: 62px; height: 62px; color: var(--gold); }
+.home-mark { display: block; width: 100px; height: 100px; border-radius: 22px; }
 .home-hero h1 { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 2.2rem; letter-spacing: .22em; color: var(--parch); text-wrap: balance; }
 :root[lang="en"] .home-hero h1 { font-family: var(--f-latin); font-size: 2.6rem; letter-spacing: .02em; line-height: 1.1; }
 .home-tagline { margin: 0; max-width: 32ch; font-family: var(--f-lot); font-size: 1.15rem; line-height: 1.7; color: var(--gold); text-wrap: balance; }
@@ -918,12 +918,7 @@ details.panel[open] > summary::after { content: "－"; }
   <!-- ================= STUDIO HOME ================= -->
   <section class="view" id="view-home" aria-labelledby="homeTitle">
     <header class="home-hero">
-      <svg class="home-mark" viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r="30" fill="none" stroke="currentColor" stroke-width="1.2"/>
-        <circle cx="32" cy="32" r="25" fill="none" stroke="currentColor" stroke-width=".6" stroke-dasharray="1.5 3"/>
-        <path d="M37 17a15 15 0 1 0 0 30a18 18 0 0 1 0-30z" fill="currentColor"/>
-        <path d="M40 24l1.2 3.2 3.3 1.1-3.3 1.1L40 32.6l-1.2-3.2-3.3-1.1 3.3-1.1z" fill="currentColor"/>
-      </svg>
+      <img class="home-mark" src="cards/follow-heart-logo.webp" width="100" height="100" alt="">
       <span class="eyebrow" data-i18n="home.eyebrow">Follow Heart Studio</span>
       <h1 id="homeTitle" data-i18n="home.title">隨心工作坊</h1>
       <p class="home-tagline" data-i18n-html="home.tagline">帶著真正的問題而來<br>走回自己的內心</p>
