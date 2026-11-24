@@ -2323,7 +2323,7 @@ const KINDS = {
   leno: { cards: LCARDS, back: BACK_LENO, ar: 160 / 238, imgAr: 848 / 1264, modes: ["single", "three", "nine", "free"], labels: "lspread.", head: "leno." },
   osho: { cards: OCARDS, back: BACK_OSHO, ar: 1000 / 1480, imgAr: 1000 / 1480, modes: ["free"], labels: "spread.", head: "osho.", priv: true },
   mix: { cards: MCARDS, back: BACK, ar: 140 / 240, imgAr: 250 / 430, modes: ["free"], labels: "spread.", head: "mix.", priv: true, mix: true },
-  thoth: { cards: TCARDS, back: BACK_THOTH, ar: 1000 / 1480, imgAr: 1000 / 1480, modes: ["free"], labels: "spread.", head: "thoth.", priv: true }
+  thoth: { cards: TCARDS, back: BACK_THOTH, ar: 2 / 3, imgAr: 2 / 3, modes: ["free"], labels: "spread.", head: "thoth.", priv: true }
 };
 const T = { kind: "rws", mode: "single", deck: [], picks: [], free: [], z: 1, piles: {}, mixOn: new Set(MIX_KINDS) };
 const K = () => KINDS[T.kind];
