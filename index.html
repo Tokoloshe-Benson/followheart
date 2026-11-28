@@ -3526,6 +3526,8 @@ $("#lotList").addEventListener("click", e => {
   }
 });
 $("#lotList").addEventListener("keydown", e => {
+  // 注音／倉頡選字時按 Enter 是在確認選字，不要存檔（Safari 舊版要靠 keyCode 229 判斷）
+  if (e.isComposing || e.keyCode === 229) return;
   if (e.key === "Enter" && e.target.matches("input")) saveEdit(e.target.closest("li").dataset.id);
   if (e.key === "Escape" && e.target.matches("input")) { e.stopPropagation(); editing = null; renderLots(); }
 });
